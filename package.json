@@ -1,0 +1,19 @@
+{
+  "name": "mediumbluemediumgoal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@bananocoin/bananojs": "^2.5.11",
+    "axios": "^0.26.1",
+    "base-58": "^0.0.1",
+    "express": "^4.17.3",
+    "nunjucks": "^3.2.3"
+  }
+}

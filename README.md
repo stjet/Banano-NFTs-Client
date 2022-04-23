@@ -1,0 +1,1 @@
+This is a rushed implementation of the Banano NFT protocol (as a website) by Airtune. So rushed, I have not bothered to link you the protocol docs. Expect major changes.

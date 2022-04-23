@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>NFT Info</title>
+    <link href="/nft.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h2>{{ cid_json.name }}</h2>
+    {% if cid_json.animation_url %}
+      <video controls autoplay>
+        <source src="https://gateway.pinata.cloud/ipfs/{{ cid_json.animation_url }}" type="video/mp4">
+      </video>
+    {% else %}
+      <img src="https://gateway.pinata.cloud/ipfs/{{ cid_json.image }}"></img>
+    {% endif %}
+    <p>{{ cid_json.description }}</p>
+    <p><b>Version:</b> {{ supply_info.major_version+"."+supply_info.minor_version+"."+supply_info.patch_version }}</p>
+    {% if supply_info.max_supply == 0 %}
+      <p><b>Max Supply:</b> Infinite</p>
+    {% else %}
+      <p><b>Max Supply:</b> {{ supply_info.max_supply }}</p>
+    {% endif %}
+    <p><b>Minted By:</b> <a href="https://yellowspyglass.com/account/{{ cid_json.properties.issuer }}" target="_blank">{{ cid_json.properties.issuer }}</a></p>
+    {% if verified %}
+      <p>Verified</p>
+    {% endif %}
+    <script>
+      function find_owners() {
+        //
+      }
+      function find_mint_num() {
+        //
+      }
+    </script>
+  </body>
+</html>

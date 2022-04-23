@@ -1,0 +1,41 @@
+* {
+  font-family: 'Helvetica';
+}
+
+html {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #07485B;
+  color: #EDE5F4;
+}
+
+body {
+  margin: 0;
+  padding: 15px;
+}
+
+#nft-grid {
+  display: grid;
+  grid-template-columns: auto auto auto;
+}
+
+.nft {
+  padding: 5px;
+}
+
+@media screen and (min-width: 451px) {
+  #nft-grid {
+    grid-template-columns: auto;
+  }
+  .nft {
+    width: 30%;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  #nft-grid {
+    grid-template-columns: auto;
+  }
+}

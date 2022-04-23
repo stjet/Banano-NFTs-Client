@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>{{ account }}'s NFTs'</title>
+    <link href="/account.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>{{ account }}'s NFT Collection</h1>
+    {% if not nfts[0] %}
+      <p>Don't see any NFTs? Check your wallet, make sure all pending transactions are received. The minter might not be whitelisted. Or maybe you just don't have any NFTs.</p>
+    {% endif %}
+    <div id="nft-grid">
+      {% for nft in nfts %}
+        <div class="nft">
+          <h2>{{ nft.name }}</h2>
+          {% if nft.animation_url %}
+            <video controls autoplay>
+              <source src="https://gateway.pinata.cloud/ipfs/{{ nft.animation_url }}" type="video/mp4">
+            </video>
+          {% else %}
+            <img src="https://gateway.pinata.cloud/ipfs/{{ nft.image }}"></img>
+          {% endif %}
+          <p>{{ nft.description }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>
