@@ -1,0 +1,5 @@
+Ownership tracing
+Minting
+List of owners
+Number of mints
+Mint # (?)

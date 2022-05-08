@@ -1,12 +1,16 @@
 const util = require('./nft_util.js');
 const express = require('express');
 const nunjucks = require('nunjucks');
+const bodyParser = require('body-parser');
 
 nunjucks.configure('templates', { autoescape: true });
 
 const app = express();
 
 app.use(express.static('static'));
+
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
 app.get('/account/:account', async function (req, res) {
   let account = req.params.account;
@@ -34,6 +38,17 @@ app.get('/nft/:account', async function (req, res) {
 
 app.get('/mint', function (req, res) {
   return res.sendFile('mint.html', {root: 'serve'});
+});
+
+app.post('/api/spyglass/hashes', async function (req, res) {
+  //make sure comes from same site
+  if (req.get('host') != "bannfts.prussiafan.club" || !req.body) {
+    return res.status(500);
+  }
+  //req.body
+  let history = await util.get_block_hashes(req.body.blocks);
+  res.setHeader('Content-Type', 'application/json');
+  return res.send(JSON.stringify(history));
 });
 
 app.listen(8081, () => {

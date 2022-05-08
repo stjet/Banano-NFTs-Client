@@ -3,9 +3,35 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>Mint a NFT</title>
-    <link href="/mint" rel="stylesheet" type="text/css" />
+    <link href="/mint.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
+    <!--
+    {
+  "name": "r/place BANANO 2022",
+  "image": "QmVvAhBftbWg6pAR36Gg5DWzi2YBdGDXoHHBjsndzJV1i8",
+  "animation_url": "QmTza4eYsyzBoZo1a3BEWVzfCgeXGH8np3Qt8VPcPQyxk4",
+  "description": "Participation token for BANANO contributors on r/place in 2022.\n\n538 contributors were selected at random by checking pixels manually and from users who actively facilitated communication.\n\nThe artwork is an artistic interpretation of the first collaboration at (200, 910).",
+  "properties": {
+    "issuer": "ban_1rp1aceaawpub5zyztzs4tn7gcugm5bc3o6oga16bb18bquqm1bjnoomynze",
+    "supply_block_hash": "079871683378A92059E87A4BABFABCCC066ED529D53D4474541836267CF19AAF"
+  }
+}
+    -->
+    <!--
+      Name, Image, Animation Url (optional), Description, Seed, Supply, Pinata Api Key
+      With seed, send supply block. Then upload image/animation, and generate json, upload json. 
+    -->
+    <label for="name">Name: </label><input id="name" type="text"></input>
+    <br>
+    <label for="name">Description: </label><textarea id="name"></textarea>
+    <br>
+    <label for="seed">Seed: </label><input type="text" id="seed"></input>
+    <br>
+    <label for="supply">Max Supply (0 for unlimited): </label><input type="text" id="supply"></input>
+    //image or animation url upload
+    <h2>What goes on behind the scenes</h2>
+    <p>First, the supply block is issued (using provided seed) and max supply. Then assets (images, animations) are uploaded to IPFS using the Pinata API Key. Then, with information from prior steps is combined with description and name. Finally, that is uploaded to IPFS also, and a banano address is given. <b>Set your rep to the given address, and any sends while you have that representative will mint and send NFTs</b>.</p>
     <script>
     </script>
   </body>

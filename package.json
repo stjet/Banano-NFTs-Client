@@ -13,6 +13,8 @@
     "@bananocoin/bananojs": "^2.5.11",
     "axios": "^0.26.1",
     "base-58": "^0.0.1",
+    "body-parser": "^1.20.0",
+    "cids": "^1.1.9",
     "express": "^4.17.3",
     "nunjucks": "^3.2.3"
   }
