@@ -1,5 +1,8 @@
-Ownership tracing
-Minting
+Burn
+Support Change
 List of owners
 Number of mints
 Mint # (?)
+Sending/Minting Instructions
+Link to Protocol
+Atomic swaps????

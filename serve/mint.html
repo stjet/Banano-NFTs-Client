@@ -4,6 +4,8 @@
     <meta name="viewport" content="width=device-width">
     <title>Mint a NFT</title>
     <link href="/mint.css" rel="stylesheet" type="text/css" />
+    <script src="/banano.js"></script>
+    <script src="/b68.js"></script>
   </head>
   <body>
     <!--
@@ -22,17 +24,138 @@
       Name, Image, Animation Url (optional), Description, Seed, Supply, Pinata Api Key
       With seed, send supply block. Then upload image/animation, and generate json, upload json. 
     -->
-    <label for="name">Name: </label><input id="name" type="text"></input>
-    <br>
-    <label for="name">Description: </label><textarea id="name"></textarea>
-    <br>
-    <label for="seed">Seed: </label><input type="text" id="seed"></input>
-    <br>
-    <label for="supply">Max Supply (0 for unlimited): </label><input type="text" id="supply"></input>
-    //image or animation url upload
-    <h2>What goes on behind the scenes</h2>
-    <p>First, the supply block is issued (using provided seed) and max supply. Then assets (images, animations) are uploaded to IPFS using the Pinata API Key. Then, with information from prior steps is combined with description and name. Finally, that is uploaded to IPFS also, and a banano address is given. <b>Set your rep to the given address, and any sends while you have that representative will mint and send NFTs</b>.</p>
+    <div id="result-success" style="none">
+      <p>Success: Set the account's rep to <span id="nft-rep"></span> during the send and the NFT will send.</p>
+    </div>
+    <div id="nft-upload">
+      <label for="api-key">Pinata API Key: </label><input type="text" id="api-key"></input>
+      <br>
+      <label for="api-secret">Pinata API Secret: </label><input type="text" id="api-secret"></input>
+      <br>
+      <label for="name">Name: </label><input id="name" type="text"></input>
+      <br>
+      <label for="description">Description: </label><textarea id="description"></textarea>
+      <br>
+      <label for="seed">Seed: </label><input type="text" id="seed"></input>
+      <br>
+      <!--Image upload-->
+      <input type="file" id="file-upload" accept="image/*">
+      <br>
+      <label for="supply">Max Supply (0 for unlimited): </label><input type="text" id="supply"></input>
+      <br>
+      <button onclick="mint()">Mint</button>
+    </div>
+    <!--Give mint rep-->
     <script>
+      const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+      window.bananocoinBananojs.setBananodeApiUrl('https://kaliumapi.appditto.com/api');
+      async function pin_json(json_data) {
+        let api_key = document.getElementById('api-key').value;
+        let api_secret = document.getElementById('api-secret').value;
+        let json_resp = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+          method: 'POST',
+          body: JSON.stringify(json_data),
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            pinata_api_key: api_key,
+            pinata_secret_api_key: api_secret
+          }
+        });
+        json_resp = await json_resp.json();
+        console.log(json_resp)
+        if (json_resp.IpfsHash) {
+          return json_resp.IpfsHash;
+        } else {
+          return false;
+        }
+      }
+      async function pin_images() {
+        //get image
+        let file_input = document.getElementById('file-upload');
+        file = file_input.files[0];
+        let data = new FormData();
+        //get api key and api secret
+        let api_key = document.getElementById('api-key').value;
+        let api_secret = document.getElementById('api-secret').value;
+        //pin to ipfs using pinata api
+        //stream()
+        data.append('file', file, 'ban_nft.png');
+        data.append('pinataOptions', JSON.stringify({cidVersion: 0}));
+        let img_resp = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+          method: 'POST',
+          body: data,
+          headers: {
+            //'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
+            pinata_api_key: api_key,
+            pinata_secret_api_key: api_secret
+          }
+        });
+        img_resp = await img_resp.json();
+        console.log(img_resp)
+        if (img_resp.IpfsHash) {
+          return img_resp.IpfsHash;
+        } else {
+          return false;
+        }
+      }
+      async function mint() {
+        let supply = Number(document.getElementById('supply').value);
+        let seed = document.getElementById('seed').value.trim();
+        let ban_address = await window.bananocoinBananojs.getBananoAccountFromSeed(seed, 0);
+        if (!ban_address) {
+          //ERROR
+        }
+        //create supply block by creating public key
+        //get versions
+        let major_version = 1;
+        let mv_pub = major_version.toString(16);
+        mv_pub = "0".repeat(10-mv_pub.length)+mv_pub;
+        let minor_version = 0;
+        let mn_pub = minor_version.toString(16);
+        mn_pub = "0".repeat(10-mn_pub.length)+mn_pub;
+        let patch_version = 0;
+        let pt_pub = patch_version.toString(16);
+        pt_pub = "0".repeat(10-pt_pub.length)+pt_pub;
+        //get supply
+        let supply_pub = supply.toString(16);
+        supply_pub = "0".repeat(16-supply_pub.length)+supply_pub;
+        let s_pub_key = '51BACEED6078000000'+mv_pub+mn_pub+pt_pub+supply_pub;
+        let supply_rep = window.bananocoinBananojs.getBananoAccount(s_pub_key);
+        //SET REP, which creates the supply block
+        await sleep(500);
+        let supply_block_hash = await window.bananocoinBananojs.changeBananoRepresentativeForSeed(seed, 0, supply_rep);
+        //upload images
+        let img_hash = await pin_images();
+        if (!img_hash) {
+          //ERROR
+          console.log('error')
+          return;
+        }
+        await sleep(500);
+        //create json text
+        let json_info = {};
+        json_info.name = document.getElementById('name').value;
+        json_info.image = img_hash;
+        json_info.description = document.getElementById('description').value;
+        json_info.properties = {
+          issuer: ban_address,
+          supply_block_hash: supply_block_hash
+        };
+        let json_hash = await pin_json(json_info);
+        if (!json_hash) {
+          //ERROR
+          console.log('error')
+          return;
+        }
+        //cid to account
+        let MAP = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"; 
+        let decoded = toHexString(from_b58(json_hash,MAP)).toUpperCase(); 
+        //remove 1220
+        let nft_rep_pub = decoded.slice(4);
+        let nft_rep_addr = window.bananocoinBananojs.getAccount(nft_rep_pub, "ban_");
+        document.getElementById('result-success').style.display = "block";
+        document.getElementById('nft-rep').innerText = nft_rep_addr;
+      }
     </script>
   </body>
 </html>
