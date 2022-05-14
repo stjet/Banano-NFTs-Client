@@ -31,7 +31,7 @@
               <source src="https://gateway.pinata.cloud/ipfs/{{ nft.animation_url }}" type="video/mp4">
             </video>
           {% else %}
-            <img src="https://gateway.pinata.cloud/ipfs/{{ nft.image }}"></img>
+            <img src="https://gateway.pinata.cloud/ipfs/{{ nft.image }}" class="nft-img"></img>
           {% endif %}
           <br>
           <button onclick="show_ownership('{{ nft.receive_hash }}', '{{ nft.rep }}', '{{ nft.properties.issuer }}')">Ownership History</button>

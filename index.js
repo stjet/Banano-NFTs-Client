@@ -2,6 +2,7 @@ const util = require('./nft_util.js');
 const express = require('express');
 const nunjucks = require('nunjucks');
 const bodyParser = require('body-parser');
+const giveaway = require('./giveaway.js');
 
 nunjucks.configure('templates', { autoescape: true });
 
@@ -38,6 +39,15 @@ app.get('/nft/:account', async function (req, res) {
 
 app.get('/mint', function (req, res) {
   return res.sendFile('mint.html', {root: 'serve'});
+});
+
+app.get('/drop/:id', async function (req, res) {
+  let infos = await giveaway.get_giveaway_info(req.params.id);
+  if (!infos) {
+    //return error
+    return res.send(nunjucks.render('giveaway.html', {error: true}));
+  }
+  return res.send(nunjucks.render('giveaway.html', {error: false, info: infos[0]}));
 });
 
 app.post('/api/spyglass/hashes', async function (req, res) {

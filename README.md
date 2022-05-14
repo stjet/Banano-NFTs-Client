@@ -1,1 +1,1 @@
-This is a rushed implementation of the Banano NFT protocol (as a website) by Airtune. Made by me. So rushed, I have not bothered to link you the protocol docs. Expect major changes.
+This is a WIP implementation of the [Banano NFT protocol](https://github.com/Airtune/73-meta-tokens) (as a website) by Airtune. Made by me.

@@ -1,0 +1,15 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <link href="/index.css" rel="stylesheet" type="text/css" />
+    <title>Giveaway!!!</title>
+  </head>
+  <body>
+    {% if error %}
+      <p>Looks like this giveaway doesn't exist, or has ended.</p>
+    {% else %}
+      <p>Send 0.01 Banano to {{ info.send_to }} (a burn address), and the NFT will be <b>after the event</b>. Check out what the NFT looks like <a href="https://bannfts.prussiafan.club/nft/{{ info.nft }}">here</a>.</p>
+    {% endif %}
+  </body>
+</html>

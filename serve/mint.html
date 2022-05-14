@@ -24,8 +24,11 @@
       Name, Image, Animation Url (optional), Description, Seed, Supply, Pinata Api Key
       With seed, send supply block. Then upload image/animation, and generate json, upload json. 
     -->
-    <div id="result-success" style="none">
-      <p>Success: Set the account's rep to <span id="nft-rep"></span> during the send and the NFT will send.</p>
+    <div id="result-success" style="display: none;">
+      <p>Success: Set the account's (account should be the one from the seed inputted) rep to <span id="nft-rep"></span> during the send and the NFT will mint+send.</p>
+    </div>
+    <div id="result-failure" style="display: none;">
+      <p>Process Failed</p>
     </div>
     <div id="nft-upload">
       <label for="api-key">Pinata API Key: </label><input type="text" id="api-key"></input>

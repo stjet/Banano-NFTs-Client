@@ -1,8 +1,15 @@
-Burn
 Support Change
+Claim links!!!
+Supply checks
+
+Burn
 List of owners
 Number of mints
 Mint # (?)
 Sending/Minting Instructions
 Link to Protocol
 Atomic swaps????
+API
+spanish translations
+themes
+error handling
