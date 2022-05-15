@@ -8,7 +8,10 @@ bananojs.setBananodeApiUrl('https://kaliumapi.appditto.com/api');
 
 const base_url = "https://gateway.pinata.cloud/ipfs/";
 
+let online_reps;
+
 let nft_cache = {};
+let invalid_rep_mint_blocks = [];
 //let owners_cache = {};
 //cache should store nfts and block height at snapshot. If block height is unchanged, keep using cache
 //let account_history_cache = {};
@@ -18,6 +21,11 @@ let verified_minters = String(fs.readFileSync('verified_minters.txt')).split('\n
 });
 
 let api_secret = process.env.spyglass_key;
+
+async function set_online_reps() {
+  let resp = await axios.get('https://api.spyglass.pw/banano/v1/representatives/online', {headers: {'Authorization': api_secret}});
+  online_reps = resp.data;
+}
 
 function v0_to_v1(v0_cid) {
   return new CID(v0_cid).toV1().toString('base32');
@@ -56,7 +64,7 @@ async function get_account_history(account, count=450) {
 }
 */
 
-async function get_account_history(account, receive_only=false, send_only=false, count=50) {
+async function get_account_history(account, receive_only=false, send_only=false, count=100) {
   let payload = {
     address: account,
     size: String(count)
@@ -82,9 +90,7 @@ async function is_valid_cidaccount(account) {
     return false;
   } catch (e) {
   }
-  let resp = await axios.get('https://api.spyglass.pw/banano/v1/representatives/online', {headers: {'Authorization': api_secret}});
-  let reps = resp.data;
-  if (reps.includes(account)) {
+  if (online_reps.includes(account)) {
     return false;
   }
   let cid_json = await get_cid_json(account_to_cid(account));
@@ -162,10 +168,19 @@ async function get_nfts_for_account(account) {
       let rep;
       //checks if nft comes directly from a verified minter
       if (!verified_minters.includes(account_history[i].sourceAccount)) {
-        let pub_key_hash = bananojs.getAccountPublicKey(send_block.contents.representative);
+        let send_b_rep = send_block.contents.representative;
+        //skip online reps
+        if (online_reps.includes(send_b_rep)) {
+          continue;
+        }
+        if (invalid_rep_mint_blocks.includes(send_b_rep)) {
+          continue;
+        }
+        let pub_key_hash = bananojs.getAccountPublicKey(send_b_rep);
         //most of the requests are from here
         let mint_block = await get_block_hash(pub_key_hash);
         if (!mint_block) {
+          invalid_rep_mint_blocks.push(send_b_rep);
           continue;
         }
         rep = mint_block.contents.representative;
@@ -193,9 +208,16 @@ async function get_nfts_for_account(account) {
     } else if (account_history[i].subtype == "send") {
       //send not correct
       let rep = account_history[i].contents.representative;
+      if (online_reps.includes(rep)) {
+        continue;
+      }
+      if (invalid_rep_mint_blocks.includes(rep)) {
+        continue;
+      }
       let pub_key_hash = bananojs.getAccountPublicKey(rep);
       let mint_block = await get_block_hash(pub_key_hash);
       if (!mint_block) {
+        invalid_rep_mint_blocks.push(rep);
         continue;
       }
       rep = mint_block.contents.representative;
@@ -261,5 +283,6 @@ module.exports = {
   get_block_hashes: get_block_hashes,
   get_nfts_for_account: get_nfts_for_account,
   get_nft_info: get_nft_info,
-  verified_minters: verified_minters
+  verified_minters: verified_minters,
+  set_online_reps: set_online_reps
 }

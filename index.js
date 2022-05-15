@@ -73,6 +73,7 @@ app.post('/api/spyglass/hashes', async function (req, res) {
   return res.send(JSON.stringify(history));
 });
 
-app.listen(8081, () => {
+app.listen(8081, async () => {
+  await util.set_online_reps();
   console.log('Running')
 });
