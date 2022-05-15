@@ -19,3 +19,7 @@ body {
 a {
   color: green;
 }
+
+.nft-img {
+  max-width: 100%;
+}

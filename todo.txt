@@ -12,4 +12,5 @@ Atomic swaps????
 API
 spanish translations
 themes
-error handling
+error handling/error pages
+discord bot integration?

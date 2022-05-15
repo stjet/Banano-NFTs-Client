@@ -19,7 +19,7 @@ app.get('/account/:account', async function (req, res) {
   try {
     nfts = await util.get_nfts_for_account(account);
   } catch (e) {
-    console.log(e)
+    console.log(e);
     return res.send('Error');
   }
   return res.send(nunjucks.render('account.html', {nfts: nfts, account: account}));
@@ -27,7 +27,13 @@ app.get('/account/:account', async function (req, res) {
 
 app.get('/nft/:account', async function (req, res) {
   let account = req.params.account;
-  let info = await util.get_nft_info(account);
+  let info;
+  try {
+    info = await util.get_nft_info(account);
+  } catch (e) {
+    console.log(e);
+    return res.send('Error');
+  }
   if (!info) {
     return res.send('Error');
   }
@@ -42,7 +48,13 @@ app.get('/mint', function (req, res) {
 });
 
 app.get('/drop/:id', async function (req, res) {
-  let infos = await giveaway.get_giveaway_info(req.params.id);
+  let infos;
+  try {
+    infos = await giveaway.get_giveaway_info(req.params.id);
+  } catch (e) {
+    console.log(e);
+    return res.send('Error');
+  }
   if (!infos) {
     //return error
     return res.send(nunjucks.render('giveaway.html', {error: true}));

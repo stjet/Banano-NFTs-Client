@@ -39,7 +39,7 @@
       <br>
       <label for="description">Description: </label><textarea id="description"></textarea>
       <br>
-      <label for="seed">Seed: </label><input type="text" id="seed"></input>
+      <label for="seed">Banano Seed: </label><input type="text" id="seed"></input>
       <br>
       <!--Image upload-->
       <input type="file" id="file-upload" accept="image/*">
@@ -49,6 +49,19 @@
       <button onclick="mint()">Mint</button>
     </div>
     <!--Give mint rep-->
+    <br>
+    <b>Things to check:</b>
+    <ul>
+      <li>Get your key and secret at https://pinata.cloud?</li>
+      <li>Did you upload a file?</li>
+      <li>Check for trailing spaces</li>
+      <li>Make sure account is opened</li>
+      <li>Are all fields filled?</li>
+      <li>What device are you using?</li>
+      <li>Check the developer console</li>
+      <li>Make sure 'pinfile' and 'pinjson' endpoint permissions were allowed in</li>
+      <li>Check for pinata keys unlimited uses</li>
+    </ul>
     <script>
       const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
       window.bananocoinBananojs.setBananodeApiUrl('https://kaliumapi.appditto.com/api');
@@ -107,6 +120,8 @@
         let ban_address = await window.bananocoinBananojs.getBananoAccountFromSeed(seed, 0);
         if (!ban_address) {
           //ERROR
+          document.getElementById('result-failure').style.display = "block";
+          return;
         }
         //create supply block by creating public key
         //get versions
@@ -131,7 +146,7 @@
         let img_hash = await pin_images();
         if (!img_hash) {
           //ERROR
-          console.log('error')
+          document.getElementById('result-failure').style.display = "block";
           return;
         }
         await sleep(500);
@@ -144,10 +159,11 @@
           issuer: ban_address,
           supply_block_hash: supply_block_hash
         };
+        console.log(json_info)
         let json_hash = await pin_json(json_info);
         if (!json_hash) {
           //ERROR
-          console.log('error')
+          document.getElementById('result-failure').style.display = "block";
           return;
         }
         //cid to account
