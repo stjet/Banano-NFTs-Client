@@ -7,9 +7,17 @@
   </head>
   <body>
     {% if error %}
-      <p>Looks like this giveaway doesn't exist, or has ended.</p>
+      {% if lang == "es" %}
+        <p>Parece que el giveaway no existe o ha concluido.</p>
+      {% else %}
+        <p>Looks like this giveaway doesn't exist, or has ended.</p>
+      {% endif %}
     {% else %}
-      <p>Send 0.01 Banano to {{ info.send_to }} (a burn address), and the NFT will be <b>after the event</b>. Check out what the NFT looks like <a href="https://bannfts.prussiafan.club/nft/{{ info.nft }}">here</a>.</p>
+      {% if lang == "es" %}
+        <p>Envía 0.01 Banano a {{ info.send_to }} (dirección de quemado), y el NFT estará en las billeteras ganadoras después del evento. Mira cómo luce el NFT <a href="https://bannfts.prussiafan.club/nft/{{ info.nft }}">aquí</a>.</p>
+      {% else %}
+        <p>Send 0.01 Banano to {{ info.send_to }} (a burn address), and the NFT will be <b>after the event</b>. Check out what the NFT looks like <a href="https://bannfts.prussiafan.club/nft/{{ info.nft }}">here</a>.</p>
+      {% endif %}
     {% endif %}
   </body>
 </html>

@@ -1,16 +1,18 @@
 Support Change
-Claim links!!!
+API
 Supply checks
-
-Burn
-List of owners
 Number of mints
 Mint # (?)
-Sending/Minting Instructions
 Link to Protocol
+Aliases
 Atomic swaps????
-API
-spanish translations
 themes
+Burn
+List of owners
 error handling/error pages
 discord bot integration?
+
+Finished!
+x Claim links!!! x
+x spanish translations x
+x Sending/Minting Instructions x

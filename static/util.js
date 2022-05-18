@@ -144,6 +144,24 @@ async function show_ownership(receive_hash, nft_rep, nft_issuer) {
   }
 }
 
+//we need to convert the mint block hash into a rep
+async function how_to_send(receive_hash, nft_issuer) {
+  let receive_block = await get_block_hash(receive_hash);
+  let send_rep;
+  if (receive_block.sourceAccount === nft_issuer) {
+    //the corresponding block is the mint block
+    send_rep =  window.bananocoinBananojs.getAccount(receive_block.contents.link, "ban_");
+  } else {
+    //the corresponding block's rep is the mint block
+    await sleep(1000);
+    let send_block = await get_block_hash(receive_block.contents.link);
+    send_rep = send_block.contents.representative;
+  }
+  //handoff to modal
+  document.getElementById("how-send-modal").style.display = "block";
+  document.getElementById('nft-send-rep').innerText = send_rep;
+}
+
 async function check_certainty() {
   //
 }

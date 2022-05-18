@@ -191,6 +191,7 @@ async function get_nfts_for_account(account) {
       if (cid_json) {
         if (!verified_minters.includes(account_history[i].sourceAccount)) {
           //we may have to trace ownership here. prefer not to do this. instead we have certainty and uncertainty
+          //certainty should also be checked with the supply
           cid_json.certain = false;
         } else {
           cid_json.certain = true;

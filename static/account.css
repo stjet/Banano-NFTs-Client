@@ -29,6 +29,15 @@ body {
   width: 100%;
 }
 
+.w-break {
+  word-break: break-word;
+}
+
+h2 a {
+  text-decoration: none;
+  color: inherit;
+}
+
 @media screen and (min-width: 451px) {
   .nft {
     width: 95%;

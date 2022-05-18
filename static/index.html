@@ -9,9 +9,14 @@
     <center>
       <input id="address" placeholder="Your Banano Address"></input>
       <br>
-      <button onclick="go()">View NFTs</button>
+      <button onclick="go()" id="view-nft-btn">View NFTs</button>
     </center>
     <script>
+      let lang = navigator.language;
+      if (lang.startsWith("es")) {
+        document.getElementById("view-nft-btn").innerText = "Ver NFTs";
+        document.getElementById("address").placeholder = "Tu Dirección de Banano";
+      }
       function go() {
         window.location = '/account/'+document.getElementById('address').value;
       }

@@ -15,15 +15,35 @@
       <img src="https://gateway.pinata.cloud/ipfs/{{ cid_json.image }}" class="nft-img"></img>
     {% endif %}
     <p>{{ cid_json.description }}</p>
-    <p><b>Version:</b> {{ supply_info.major_version+"."+supply_info.minor_version+"."+supply_info.patch_version }}</p>
-    {% if supply_info.max_supply == 0 %}
-      <p><b>Max Supply:</b> Infinite</p>
+    {% if lang == "es" %}
+      <p><b>Versión:</b> {{ supply_info.major_version+"."+supply_info.minor_version+"."+supply_info.patch_version }}</p>
     {% else %}
-      <p><b>Max Supply:</b> {{ supply_info.max_supply }}</p>
+      <p><b>Version:</b> {{ supply_info.major_version+"."+supply_info.minor_version+"."+supply_info.patch_version }}</p>
     {% endif %}
-    <p><b>Minted By:</b> <a href="https://yellowspyglass.com/account/{{ cid_json.properties.issuer }}" target="_blank">{{ cid_json.properties.issuer }}</a></p>
+    {% if supply_info.max_supply == 0 %}
+      {% if lang == "es" %}
+        <p><b>Suministro Máximo:</b> Infinito</p>
+      {% else %}
+        <p><b>Max Supply:</b> Infinite</p>
+      {% endif %}
+    {% else %}
+      {% if lang == "es" %}
+        <p><b>Suministro Máximo:</b> {{ supply_info.max_supply }}</p>
+      {% else %}
+        <p><b>Max Supply:</b> {{ supply_info.max_supply }}</p>
+      {% endif %}
+    {% endif %}
+    {% if lang == "es" %}
+      <p><b>Acuñado Por:</b> <a href="https://yellowspyglass.com/account/{{ cid_json.properties.issuer }}" target="_blank">{{ cid_json.properties.issuer }}</a></p>
+    {% else %}
+      <p><b>Minted By:</b> <a href="https://yellowspyglass.com/account/{{ cid_json.properties.issuer }}" target="_blank">{{ cid_json.properties.issuer }}</a></p>
+    {% endif %}
     {% if verified %}
-      <p>Verified</p>
+      {% if lang == "es" %}
+        <p>Verificado</p>
+      {% else %}
+        <p>Verified</p>
+      {% endif %}
     {% endif %}
     <script>
       function find_owners() {
