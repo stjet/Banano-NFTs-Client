@@ -3,6 +3,7 @@ const express = require('express');
 const nunjucks = require('nunjucks');
 const bodyParser = require('body-parser');
 const giveaway = require('./giveaway.js');
+const aliases = require('./aliases.js');
 
 nunjucks.configure('templates', { autoescape: true });
 
@@ -20,7 +21,7 @@ app.get('/account/:account', async function (req, res) {
     nfts = await util.get_nfts_for_account(account);
   } catch (e) {
     console.log(e);
-    return res.send('Error');
+    return res.status(500).send('Error');
   }
   return res.send(nunjucks.render('account.html', {nfts: nfts, account: account, lang: req.acceptsLanguages(['es'])}));
 });
@@ -53,7 +54,7 @@ app.get('/drop/:id', async function (req, res) {
     infos = await giveaway.get_giveaway_info(req.params.id);
   } catch (e) {
     console.log(e);
-    return res.send('Error');
+    return res.status(500).send('Error');
   }
   if (!infos) {
     //return error
@@ -71,6 +72,24 @@ app.post('/api/spyglass/hashes', async function (req, res) {
   let history = await util.get_block_hashes(req.body.blocks);
   res.setHeader('Content-Type', 'application/json');
   return res.send(JSON.stringify(history));
+});
+
+app.get('/alias/:alias', function (req, res) {
+  let address = aliases.get_alias(req.params.alias);
+  if (!address) {
+    return res.status(404).send('Error');
+  } else {
+    return res.redirect('/account/'+address);
+  }
+});
+
+//api
+app.get('/api/v1/account/:account', async function (req, res) {
+  return res.json(await util.get_nfts_for_account(req.params.account));
+});
+
+app.get('/api/v1/verified', function (req, res) {
+  return res.json(util.verified_minters);
 });
 
 app.listen(8081, async () => {

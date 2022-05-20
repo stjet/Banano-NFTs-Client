@@ -10,6 +10,7 @@ const base_url = "https://gateway.pinata.cloud/ipfs/";
 
 let online_reps;
 
+let account_nft_cache = {};
 let nft_cache = {};
 let invalid_rep_mint_blocks = [];
 //let owners_cache = {};
@@ -25,6 +26,11 @@ let api_secret = process.env.spyglass_key;
 async function set_online_reps() {
   let resp = await axios.get('https://api.spyglass.pw/banano/v1/representatives/online', {headers: {'Authorization': api_secret}});
   online_reps = resp.data;
+}
+
+async function get_block_height(account) {
+  let info = await bananojs.getAccountInfo(account);
+  return info.confirmation_height;
 }
 
 function v0_to_v1(v0_cid) {
@@ -122,6 +128,12 @@ async function get_block_hashes(hashes) {
 }
 
 async function get_nfts_for_account(account) {
+  let block_height = await get_block_height(account);
+  if (account_nft_cache[account]) {
+    if (account_nft_cache[account].block_height == block_height) {
+      return account_nft_cache[account].nfts;
+    }
+  }
   let validation_info = bananojs.getBananoAccountValidationInfo(account);
   if (!validation_info.valid) {
     return false;
@@ -237,6 +249,7 @@ async function get_nfts_for_account(account) {
     let nft = tracking[Object.keys(tracking)[j]];
     nfts.push(nft);
   }
+  account_nft_cache[account] = {nfts: nfts, block_height: await get_block_height(account)};
   return nfts;
 }
 
@@ -285,5 +298,6 @@ module.exports = {
   get_nfts_for_account: get_nfts_for_account,
   get_nft_info: get_nft_info,
   verified_minters: verified_minters,
-  set_online_reps: set_online_reps
+  set_online_reps: set_online_reps,
+  verified_minters: verified_minters
 }
