@@ -1,18 +1,21 @@
 Support Change
 API
-Supply checks
 Number of mints
-Mint # (?)
+Mint # (premium)
+Deep Search (premium)
+NFT in pending (premium)
 Link to Protocol
-Aliases
 Atomic swaps????
 themes
 Burn
 List of owners
 error handling/error pages
 discord bot integration?
+check if a minted nft by "change" is sent, it shows up
 
 Finished!
 x Claim links!!! x
 x spanish translations x
 x Sending/Minting Instructions x
+x Supply checks x
+x Aliases x

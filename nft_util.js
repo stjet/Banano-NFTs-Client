@@ -184,11 +184,17 @@ async function get_nfts_for_account(account) {
   let nfts = [];
   let account_history;
   try {
-    account_history = await get_account_history(account, receive_only=true, send_only=true);
+    if (verified_minters.includes(account)) {
+      account_history = await get_account_history(account);
+    } else {
+      account_history = await get_account_history(account, receive_only=true, send_only=true);
+    }
   } catch (e) {
+    console.log(e)
     return nfts;
   }
-  if (account_history.length !== 0) {
+  //spyglass v2 fix
+  if (account_history.length === 0) {
     return nfts;
   }
   //, {filterAddresses: false, include_receive: true, include_change: false, include_send: false, offset: false, size: 500}
@@ -207,15 +213,7 @@ async function get_nfts_for_account(account) {
     return item.contents.link;
   });
   let corresponding_send_blocks = await get_block_hashes(send_block_hashes);
-  //mint block optimizations
-  /*
-  let mint_block_hashes = account_history.filter(function(item) {
-    return item.subtype === "receive" && !verified_minters.includes(item.sourceAccount);
-  }).map(function (item) {
-    return bananojs.getAccountPublicKey(item.contents.representative);
-  });
-  let corresponding_mint_blocks = await get_block_hashes(send_block_hashes);
-  */
+  //mint block optimizations not possible currently
   //start actual tracking
   let tracking = {};
   for (let i=0; i < account_history.length; i++) {
@@ -296,6 +294,25 @@ async function get_nfts_for_account(account) {
         }
       }
       continue;
+    } else if (account_history[i].subtype == "change") {
+      //check if minted nft to self
+      let rep = account_history[i].contents.representative;
+      let cid_json = await is_valid_cidaccount(rep);
+      if (cid_json) {
+        let within_supply_confident = await within_supply_constraints(cid_json.properties.supply_block_hash, account_history[i].height);
+        if (!within_supply_confident) {
+          cid_json.certain = false;
+        } else {
+          cid_json.certain = true;
+        }
+        cid_json.rep = rep;
+        if (!tracking[rep]) {
+          cid_json.quantity = 1;
+          tracking[rep] = cid_json;
+        } else {
+          tracking[rep] = cid_json;
+        }
+      }
     }
   }
   for (let j=0; j < Object.keys(tracking).length; j++) {
