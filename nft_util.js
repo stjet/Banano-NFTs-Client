@@ -1,3 +1,4 @@
+//"use strict";
 const bananojs = require('@bananocoin/bananojs');
 const base58 = require('base-58');
 const fs = require('fs');
@@ -13,6 +14,7 @@ let online_reps;
 let account_nft_cache = {};
 let nft_cache = {};
 let invalid_rep_mint_blocks = [];
+let block_cache = {};
 //let owners_cache = {};
 //cache should store nfts and block height at snapshot. If block height is unchanged, keep using cache
 //let account_history_cache = {};
@@ -84,7 +86,7 @@ async function get_account_history(account, receive_only=false, send_only=false,
     payload.includeChange = false;
     payload.includeReceive = false;
   }
-  let resp = await axios.post('https://api.spyglass.pw/banano/v1/account/confirmed-transactions', payload, {headers: {'Authorization': api_secret}});
+  let resp = await axios.post('https://api.spyglass.pw/banano/v2/account/confirmed-transactions', payload, {headers: {'Authorization': api_secret}});
   return resp.data;
 }
 
@@ -92,8 +94,11 @@ async function is_valid_cidaccount(account) {
   //check for unopened
   //it must be unopened
   try {
-    await get_account_history(account);
-    return false;
+    let ah = await get_account_history(account);
+    //v2 error handling
+    if (ah.length !== 0) {
+      return false;
+    }
   } catch (e) {
   }
   if (online_reps.includes(account)) {
@@ -107,10 +112,16 @@ async function is_valid_cidaccount(account) {
 }
 
 async function get_block_hash(hash) {
+  //block_cache
+  if (block_cache[hash] !== undefined) {
+    return block_cache[hash];
+  }
   let resp;
   try {
     resp = await axios.get('https://api.spyglass.pw/banano/v1/block/'+hash, {headers: {'Authorization': api_secret}});
+    block_cache[hash] = resp.data;
   } catch (e) {
+    block_cache[hash] = false;
     return false;
   }
   return resp.data;
@@ -124,6 +135,38 @@ async function get_block_hashes(hashes) {
     return resp.data;
   } catch (e) {
     return false;
+  }
+}
+
+async function get_supply_block_rep(hash) {
+  let supply_block = await get_block_hash(hash);
+  let supply_rep = supply_block.contents.representative;
+  //decode the info from supply rep
+  if (!supply_rep.startsWith('ban_1nftsupp1y11111')) {
+    return false;
+  }
+  let pub_key = bananojs.getAccountPublicKey(supply_rep);
+  return [supply_block, pub_key];
+}
+
+//if possible, maybe cache the supply block heights?
+async function within_supply_constraints(supply_hash, mint_height) {
+  //see height of supply, height of mint block. Get supply, check. Obviously, account may put out supply block, and not until much later, so it is not decisive. But if returns true, there is certainty
+  /*
+  if (mint_block.height < supply_block.height) {
+    //supply block minted mint block??? 
+  }
+  */
+  let supply_info = await get_supply_block_rep(supply_hash);
+  let supply = parseInt(supply_info[1].slice(48, 64), 16);
+  if (supply === 0) {
+    return true;
+  }
+  let height_diff = mint_height - supply_info[0].height;
+  if (height_diff > supply) {
+    return false;
+  } else {
+    return true;
   }
 }
 
@@ -143,6 +186,9 @@ async function get_nfts_for_account(account) {
   try {
     account_history = await get_account_history(account, receive_only=true, send_only=true);
   } catch (e) {
+    return nfts;
+  }
+  if (account_history.length !== 0) {
     return nfts;
   }
   //, {filterAddresses: false, include_receive: true, include_change: false, include_send: false, offset: false, size: 500}
@@ -178,6 +224,7 @@ async function get_nfts_for_account(account) {
       let send_block_hash_index = send_block_hashes.indexOf(account_history[i].contents.link);
       let send_block = corresponding_send_blocks[send_block_hash_index];
       let rep;
+      let mint_height;
       //checks if nft comes directly from a verified minter
       if (!verified_minters.includes(account_history[i].sourceAccount)) {
         let send_b_rep = send_block.contents.representative;
@@ -196,8 +243,10 @@ async function get_nfts_for_account(account) {
           continue;
         }
         rep = mint_block.contents.representative;
+        mint_height = mint_block.height;
       } else {
         rep = send_block.contents.representative;
+        mint_height = send_block.height;
       }
       let cid_json = await is_valid_cidaccount(rep);
       if (cid_json) {
@@ -207,6 +256,10 @@ async function get_nfts_for_account(account) {
           cid_json.certain = false;
         } else {
           cid_json.certain = true;
+        }
+        let within_supply_confident = await within_supply_constraints(cid_json.properties.supply_block_hash, mint_height);
+        if (!within_supply_confident) {
+          cid_json.certain = false;
         }
         cid_json.receive_hash = hashes[i];
         cid_json.rep = rep;
@@ -265,13 +318,8 @@ async function get_nft_info(account) {
   if (!cid_json) {
     return false;
   }
-  let supply_block = await get_block_hash(cid_json.properties.supply_block_hash);
-  let supply_rep = supply_block.contents.representative;
-  //decode the info from supply rep
-  if (!supply_rep.startsWith('ban_1nftsupp1y11111')) {
-    return false;
-  }
-  let pub_key = bananojs.getAccountPublicKey(supply_rep);
+  let pub_key = await get_supply_block_rep(cid_json.properties.supply_block_hash);
+  pub_key = pub_key[1];
   let major_version = parseInt(pub_key.slice(18, 28), 16);
   let minor_version = parseInt(pub_key.slice(28, 38), 16);
   let patch_version = parseInt(pub_key.slice(38, 48), 16);
