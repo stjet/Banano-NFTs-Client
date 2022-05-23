@@ -37,8 +37,10 @@
     </div>
     {% if lang == "es" %}
       <h1 class="w-break">{{ account }}'s Colección NFT</h1>
+      {% if supporter %}<span class="supporter-badge">Colaborador</span>{% endif %}
     {% else %}
       <h1 class="w-break">{{ account }}'s NFT Collection</h1>
+      {% if supporter %}<a href="/support"><span class="supporter-badge">Supporter</span></a>{% endif %}
     {% endif %}
     {% if not nfts[0] %}
       {% if lang == "es" %}

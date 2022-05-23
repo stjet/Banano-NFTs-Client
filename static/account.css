@@ -38,6 +38,13 @@ h2 a {
   color: inherit;
 }
 
+.supporter-badge {
+  background-color: rgb(0,0,165);
+  padding: 7px;
+  border-radius: 8px;
+  color: rgb(0,255,195);
+}
+
 @media screen and (min-width: 451px) {
   .nft {
     width: 95%;

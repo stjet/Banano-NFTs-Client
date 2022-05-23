@@ -1,5 +1,3 @@
-Support Change
-API
 Number of mints
 Mint # (premium)
 Deep Search (premium)
@@ -12,6 +10,7 @@ List of owners
 error handling/error pages
 discord bot integration?
 check if a minted nft by "change" is sent, it shows up
+Qr code to both supporter and drop pages
 
 Finished!
 x Claim links!!! x
@@ -19,3 +18,5 @@ x spanish translations x
 x Sending/Minting Instructions x
 x Supply checks x
 x Aliases x
+x Support Change x
+x API x

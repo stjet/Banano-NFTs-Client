@@ -14,7 +14,7 @@
       {% endif %}
     {% else %}
       {% if lang == "es" %}
-        <p>Envía 0.01 Banano a {{ info.send_to }} (dirección de quemado), y el NFT estará en las billeteras ganadoras después del evento. Mira cómo luce el NFT <a href="https://bannfts.prussiafan.club/nft/{{ info.nft }}">aquí</a>.</p>
+        <p>Envía 0.01 Banano a {{ info.nft }} (dirección de quemado), y el NFT estará en las billeteras ganadoras después del evento. Mira cómo luce el NFT <a href="https://bannfts.prussiafan.club/nft/{{ nft_rep }}">aquí</a>.</p>
       {% else %}
         <p>Send 0.01 Banano to {{ info.send_to }} (a burn address), and the NFT will be <b>after the event</b>. Check out what the NFT looks like <a href="https://bannfts.prussiafan.club/nft/{{ info.nft }}">here</a>.</p>
       {% endif %}

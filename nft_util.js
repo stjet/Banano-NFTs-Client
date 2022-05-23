@@ -72,7 +72,7 @@ async function get_account_history(account, count=450) {
 }
 */
 
-async function get_account_history(account, receive_only=false, send_only=false, count=100) {
+async function get_account_history(account, receive_only=false, send_only=false, count=100, from=false) {
   let payload = {
     address: account,
     size: String(count)
@@ -85,6 +85,9 @@ async function get_account_history(account, receive_only=false, send_only=false,
   } else if (send_only) {
     payload.includeChange = false;
     payload.includeReceive = false;
+  }
+  if (from) {
+    payload.filterAddresses = from;
   }
   let resp = await axios.post('https://api.spyglass.pw/banano/v2/account/confirmed-transactions', payload, {headers: {'Authorization': api_secret}});
   return resp.data;
@@ -353,6 +356,27 @@ async function get_nft_info(account) {
   return return_value;
 }
 
+/*
+async function get_pending_transactions(account) {
+  let resp = await axios.get('https://api.spyglass.pw/banano/v1/account/receivable-transactions', {headers: {'Authorization': api_secret}});
+  //
+}
+*/
+
+//only call when premium requested
+async function account_is_supporting(account) {
+  let dev_fund = "ban_3pdripjhteyymwjnaspc5nd96gyxgcdxcskiwwwoqxttnrncrxi974riid94";
+  let account_history = await get_account_history(account, send_only=true, count=250, from=[dev_fund]);
+  //filter account_history
+  for (let i=0; i < account_history.length; i++) {
+    let block = account_history[i];
+    if (block.amount >= 800) {
+      return true;
+    }
+  }
+  return false;
+}
+
 module.exports = {
   account_to_cid: account_to_cid,
   get_cid_json: get_cid_json,
@@ -364,5 +388,6 @@ module.exports = {
   get_nft_info: get_nft_info,
   verified_minters: verified_minters,
   set_online_reps: set_online_reps,
-  verified_minters: verified_minters
+  verified_minters: verified_minters,
+  account_is_supporting: account_is_supporting
 }

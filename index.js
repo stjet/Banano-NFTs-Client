@@ -23,7 +23,7 @@ app.get('/account/:account', async function (req, res) {
     console.log(e);
     return res.status(500).send('Error');
   }
-  return res.send(nunjucks.render('account.html', {nfts: nfts, account: account, lang: req.acceptsLanguages(['es'])}));
+  return res.send(nunjucks.render('account.html', {nfts: nfts, account: account, lang: req.acceptsLanguages(['es']), supporter: await util.account_is_supporting(account)}));
 });
 
 app.get('/nft/:account', async function (req, res) {
@@ -48,19 +48,23 @@ app.get('/mint', function (req, res) {
   return res.sendFile('mint.html', {root: 'serve'});
 });
 
+app.get('/support', function (req, res) {
+  return res.sendFile('support.html', {root: 'serve'});
+});
+
 app.get('/drop/:id', async function (req, res) {
-  let infos;
+  let info;
   try {
-    infos = await giveaway.get_giveaway_info(req.params.id);
+    info = await giveaway.get_giveaway_info(req.params.id);
   } catch (e) {
     console.log(e);
     return res.status(500).send('Error');
   }
-  if (!infos) {
+  if (!info) {
     //return error
     return res.send(nunjucks.render('giveaway.html', {error: true, lang: req.acceptsLanguages(['es'])}));
   }
-  return res.send(nunjucks.render('giveaway.html', {error: false, info: infos[0], lang: req.acceptsLanguages(['es'])}));
+  return res.send(nunjucks.render('giveaway.html', {error: false, info: info, lang: req.acceptsLanguages(['es'])}));
 });
 
 app.post('/api/spyglass/hashes', async function (req, res) {
@@ -92,7 +96,7 @@ app.get('/api/v1/verified', function (req, res) {
   return res.json(util.verified_minters);
 });
 
-app.listen(8081, async () => {
+app.listen(443, async () => {
   await util.set_online_reps();
-  console.log('Running')
+  console.log('Running');
 });

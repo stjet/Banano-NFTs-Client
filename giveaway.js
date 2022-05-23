@@ -1,17 +1,17 @@
 const fs = require('fs');
-const util = require('./nft_util.js');
+//const util = require('./nft_util.js');
 
 let giveaways = JSON.parse(fs.readFileSync('giveaway.json'));
 
 async function get_giveaway_info(id) {
-  if (!giveaways[id]) {
+  let giveaway = giveaways[id];
+  if (!giveaway) {
     return false;
   }
-  if (Date.now() > giveaways[id].end) {
+  if (Math.round(Date.now()/1000) > giveaway.end) {
     return false;
   }
-  let nft_info = await util.is_valid_cidaccount(giveaways[id].nft);
-  return [giveaways[id], nft_info];
+  return giveaways[id];
 }
 
 module.exports = {
