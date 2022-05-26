@@ -1,7 +1,7 @@
 const fs = require('fs');
 //const util = require('./nft_util.js');
 
-let giveaways = JSON.parse(fs.readFileSync('giveaway.json'));
+let giveaways = JSON.parse(fs.readFileSync('storage/giveaway.json'));
 
 async function get_giveaway_info(id) {
   let giveaway = giveaways[id];

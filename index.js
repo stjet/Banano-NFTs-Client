@@ -2,8 +2,10 @@ const util = require('./nft_util.js');
 const express = require('express');
 const nunjucks = require('nunjucks');
 const bodyParser = require('body-parser');
-const giveaway = require('./giveaway.js');
-const aliases = require('./aliases.js');
+const giveaway = require('./storage/giveaway.js');
+const aliases = require('./storage/aliases.js');
+
+let outage = false;
 
 nunjucks.configure('templates', { autoescape: true });
 
@@ -16,14 +18,21 @@ app.use(bodyParser.json());
 
 app.get('/account/:account', async function (req, res) {
   let account = req.params.account;
+  let supporter = false;
+  try {
+    //1 for true
+    supporter = await util.account_is_supporting(account);
+  } catch(e) {
+    console.log(e);
+  }
   let nfts;
   try {
-    nfts = await util.get_nfts_for_account(account);
+    nfts = await util.get_nfts_for_account(account, detect_change_send=req.query.detect_change_send, supporter=supporter);
   } catch (e) {
     console.log(e);
     return res.status(500).send('Error');
   }
-  return res.send(nunjucks.render('account.html', {nfts: nfts, account: account, lang: req.acceptsLanguages(['es']), supporter: await util.account_is_supporting(account)}));
+  return res.send(nunjucks.render('account.html', {nfts: nfts, account: account, lang: req.acceptsLanguages(['es']), supporter: supporter}));
 });
 
 app.get('/nft/:account', async function (req, res) {
@@ -97,6 +106,11 @@ app.get('/api/v1/verified', function (req, res) {
 });
 
 app.listen(443, async () => {
-  await util.set_online_reps();
+  try {
+    await util.set_online_reps();
+  } catch (e) {
+    console.log(e);
+    outage = true;
+  }
   console.log('Running');
 });

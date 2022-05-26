@@ -15,6 +15,7 @@ let account_nft_cache = {};
 let nft_cache = {};
 let invalid_rep_mint_blocks = [];
 let block_cache = {};
+let supporting_cache = [];
 //let owners_cache = {};
 //cache should store nfts and block height at snapshot. If block height is unchanged, keep using cache
 //let account_history_cache = {};
@@ -173,7 +174,10 @@ async function within_supply_constraints(supply_hash, mint_height) {
   }
 }
 
-async function get_nfts_for_account(account) {
+async function get_nfts_for_account(account, detect_change_send=false, supporting=false) {
+  if (detect_change_send) {
+    console.log('detect_change_send');
+  }
   let block_height = await get_block_height(account);
   if (account_nft_cache[account]) {
     if (account_nft_cache[account].block_height == block_height) {
@@ -188,9 +192,18 @@ async function get_nfts_for_account(account) {
   let account_history;
   try {
     if (verified_minters.includes(account)) {
-      account_history = await get_account_history(account);
+      //include changes
+      if (supporting) {
+        account_history = await get_account_history(account, count=400);
+      } else {
+        account_history = await get_account_history(account);
+      }
     } else {
-      account_history = await get_account_history(account, receive_only=true, send_only=true);
+      if (supporting) {
+        account_history = await get_account_history(account, receive_only=true, send_only=true, count=400);
+      } else {
+        account_history = await get_account_history(account, receive_only=true, send_only=true);
+      }
     }
   } catch (e) {
     console.log(e)
@@ -248,6 +261,22 @@ async function get_nfts_for_account(account) {
       } else {
         rep = send_block.contents.representative;
         mint_height = send_block.height;
+        if (detect_change_send) {
+          let send_b_rep = send_block.contents.representative;
+          //skip online reps
+          if (online_reps.includes(send_b_rep)) {
+            continue;
+          }
+          if (invalid_rep_mint_blocks.includes(send_b_rep)) {
+            continue;
+          }
+          let pub_key_hash = bananojs.getAccountPublicKey(send_b_rep);
+          //most of the requests are from here
+          let mint_block = await get_block_hash(pub_key_hash);
+          if (mint_block) {
+            rep = mint_block.contents.representative;
+          }
+        }
       }
       let cid_json = await is_valid_cidaccount(rep);
       if (cid_json) {
@@ -291,6 +320,11 @@ async function get_nfts_for_account(account) {
       let cid_json = await is_valid_cidaccount(rep);
       //this means nft has been sent. remove it
       if (cid_json) {
+        if (!tracking[rep]) {
+          console.log('nft sent but never existed in account. hmm')
+          //shouldnt happen... but whatever
+          continue;
+        }
         tracking[rep].quantity = tracking[rep].quantity-1;
         if (tracking[rep].quantity === 0) {
           delete tracking[rep];
@@ -309,6 +343,7 @@ async function get_nfts_for_account(account) {
           cid_json.certain = true;
         }
         cid_json.rep = rep;
+        cid_json.receive_hash = hashes[i];
         if (!tracking[rep]) {
           cid_json.quantity = 1;
           tracking[rep] = cid_json;
@@ -356,26 +391,42 @@ async function get_nft_info(account) {
   return return_value;
 }
 
-/*
 async function get_pending_transactions(account) {
   let resp = await axios.get('https://api.spyglass.pw/banano/v1/account/receivable-transactions', {headers: {'Authorization': api_secret}});
-  //
+  return resp.data;
 }
-*/
 
 //only call when premium requested
 async function account_is_supporting(account) {
+  //ik the === true is not needed, this is just for readability
+  if (supporting_cache.includes(account)) {
+    return true;
+  }
   let dev_fund = "ban_3pdripjhteyymwjnaspc5nd96gyxgcdxcskiwwwoqxttnrncrxi974riid94";
-  let account_history = await get_account_history(account, send_only=true, count=250, from=[dev_fund]);
+  let account_history = await get_account_history(account, send_only=true, count=150, from=[dev_fund]);
   //filter account_history
   for (let i=0; i < account_history.length; i++) {
     let block = account_history[i];
     if (block.amount >= 800) {
+      supporting_cache.push(account);
       return true;
     }
   }
   return false;
 }
+
+/*
+//premium features
+
+async function get_pending_nfts(account) {
+  let pending = await get_pending_transactions(account);
+  //change pending to hashes, get hashes. get rep or send origin of those. 
+}
+
+async function get_mint_number() {
+  //
+}
+*/
 
 module.exports = {
   account_to_cid: account_to_cid,

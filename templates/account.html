@@ -77,5 +77,10 @@
         <p>Translated by WhiteFlag</p>
       {% endif %}
     </div>
+    {% if supporter and lang != "es" %}
+      <span id="depth-notice">Please note: NFTs received more than 400 transactions ago are not displayed (limitation of API)</span>
+    {% elif lang != "es" %}
+      <span id="depth-notice">Please note: NFTs received more than 100 transactions ago are not displayed (limitation of API)</span>
+    {% endif %}
   </body>
 </html>

@@ -45,6 +45,11 @@ h2 a {
   color: rgb(0,255,195);
 }
 
+#depth-notice {
+  float: right;
+  margin: 9px;
+}
+
 @media screen and (min-width: 451px) {
   .nft {
     width: 95%;

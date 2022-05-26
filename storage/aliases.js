@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 function get_alias(alias) {
-  let aliases = JSON.parse(fs.readFileSync('aliases.json'));
+  let aliases = JSON.parse(fs.readFileSync('storage/aliases.json'));
   let address = aliases[alias];
   if (!address) {
     return false;

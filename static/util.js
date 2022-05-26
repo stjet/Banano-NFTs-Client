@@ -151,6 +151,8 @@ async function how_to_send(receive_hash, nft_issuer) {
   if (receive_block.sourceAccount === nft_issuer) {
     //the corresponding block is the mint block
     send_rep =  window.bananocoinBananojs.getAccount(receive_block.contents.link, "ban_");
+  } else if (receive_block.subtype === "change") {
+    send_rep =  window.bananocoinBananojs.getAccount(receive_hash, "ban_");
   } else {
     //the corresponding block's rep is the mint block
     await sleep(1000);
