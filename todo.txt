@@ -1,6 +1,6 @@
+switch to different gateway: https://nftstorage.link/ipfs/ maybe (query param to switch?)
 Number of mints
 Mint # (premium)
-Deep Search (premium)
 NFT in pending (premium)
 Link to Protocol
 Atomic swaps????
@@ -9,7 +9,6 @@ Burn
 List of owners
 error handling/error pages
 discord bot integration?
-check if a minted nft by "change" is sent, it shows up
 Qr code to both supporter and drop pages
 
 Finished!
@@ -20,3 +19,5 @@ x Supply checks x
 x Aliases x
 x Support Change x
 x API x
+x Deep Search (premium) x
+x check if a minted nft by "change" is sent, it shows up (ish) x

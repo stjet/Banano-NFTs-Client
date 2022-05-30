@@ -18,6 +18,14 @@ app.use(bodyParser.json());
 
 app.get('/account/:account', async function (req, res) {
   let account = req.params.account;
+  if (!util.is_valid_account(account)) {
+    let address = aliases.get_alias(account);
+    if (!address) {
+      return res.status(404).send('Error');
+    } else {
+      return res.redirect('/account/'+address);
+    }
+  }
   let supporter = false;
   try {
     //1 for true

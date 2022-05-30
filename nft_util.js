@@ -31,6 +31,11 @@ async function set_online_reps() {
   online_reps = resp.data;
 }
 
+
+function is_valid_account(account) {
+  return bananojs.getBananoAccountValidationInfo(account).valid;
+}
+
 async function get_block_height(account) {
   let info = await bananojs.getAccountInfo(account);
   return info.confirmation_height;
@@ -73,7 +78,7 @@ async function get_account_history(account, count=450) {
 }
 */
 
-async function get_account_history(account, receive_only=false, send_only=false, count=100, from=false) {
+async function get_account_history(account, receive_only=false, send_only=false, count=120, from=false) {
   let payload = {
     address: account,
     size: String(count)
@@ -194,7 +199,7 @@ async function get_nfts_for_account(account, detect_change_send=false, supportin
     if (verified_minters.includes(account)) {
       //include changes
       if (supporting) {
-        account_history = await get_account_history(account, count=400);
+        account_history = await get_account_history(account, undefined, undefined, count=400);
       } else {
         account_history = await get_account_history(account);
       }
@@ -403,7 +408,7 @@ async function account_is_supporting(account) {
     return true;
   }
   let dev_fund = "ban_3pdripjhteyymwjnaspc5nd96gyxgcdxcskiwwwoqxttnrncrxi974riid94";
-  let account_history = await get_account_history(account, send_only=true, count=150, from=[dev_fund]);
+  let account_history = await get_account_history(account, undefined, send_only=true, count=150, from=[dev_fund]);
   //filter account_history
   for (let i=0; i < account_history.length; i++) {
     let block = account_history[i];
@@ -415,14 +420,19 @@ async function account_is_supporting(account) {
   return false;
 }
 
-/*
 //premium features
-
+//get only block hash of pending, not pending nft info
 async function get_pending_nfts(account) {
   let pending = await get_pending_transactions(account);
-  //change pending to hashes, get hashes. get rep or send origin of those. 
+  //change pending to hashes, get hashes
+  //pending =
+  for (let i=0; i < pending.length; i++) {
+    let transaction = pending[i];
+    //standard nft stuff
+  }
 }
 
+/*
 async function get_mint_number() {
   //
 }
@@ -440,5 +450,6 @@ module.exports = {
   verified_minters: verified_minters,
   set_online_reps: set_online_reps,
   verified_minters: verified_minters,
-  account_is_supporting: account_is_supporting
+  account_is_supporting: account_is_supporting,
+  is_valid_account: is_valid_account
 }
