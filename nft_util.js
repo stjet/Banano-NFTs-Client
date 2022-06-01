@@ -78,22 +78,23 @@ async function get_account_history(account, count=450) {
 }
 */
 
-async function get_account_history(account, receive_only=false, send_only=false, count=120, from=false) {
+//async function get_account_history(account, receive_only=false, send_only=false, count=120, from=false) {
+async function get_account_history(account, options={receive_only: false, send_only: false, count: 120, from: false}) {
   let payload = {
     address: account,
-    size: String(count)
+    size: String(options.count)
   };
-  if (receive_only && send_only) {
+  if (options.receive_only && options.send_only) {
     payload.includeChange = false;
-  } else if (receive_only) {
+  } else if (options.receive_only) {
     payload.includeChange = false;
     payload.includeSend = false;
-  } else if (send_only) {
+  } else if (options.send_only) {
     payload.includeChange = false;
     payload.includeReceive = false;
   }
-  if (from) {
-    payload.filterAddresses = from;
+  if (options.from) {
+    payload.filterAddresses = options.from;
   }
   let resp = await axios.post('https://api.spyglass.pw/banano/v2/account/confirmed-transactions', payload, {headers: {'Authorization': api_secret}});
   return resp.data;
@@ -179,8 +180,8 @@ async function within_supply_constraints(supply_hash, mint_height) {
   }
 }
 
-async function get_nfts_for_account(account, detect_change_send=false, supporting=false) {
-  if (detect_change_send) {
+async function get_nfts_for_account(account, options={detect_change_send: false, supporting: false}) {
+  if (options.detect_change_send) {
     console.log('detect_change_send');
   }
   let block_height = await get_block_height(account);
@@ -198,16 +199,16 @@ async function get_nfts_for_account(account, detect_change_send=false, supportin
   try {
     if (verified_minters.includes(account)) {
       //include changes
-      if (supporting) {
-        account_history = await get_account_history(account, undefined, undefined, count=400);
+      if (options.supporting) {
+        account_history = await get_account_history(account, {count: 400});
       } else {
         account_history = await get_account_history(account);
       }
     } else {
-      if (supporting) {
-        account_history = await get_account_history(account, receive_only=true, send_only=true, count=400);
+      if (options.supporting) {
+        account_history = await get_account_history(account, {receive_only: true, send_only: true, count: 400});
       } else {
-        account_history = await get_account_history(account, receive_only=true, send_only=true);
+        account_history = await get_account_history(account, {receive_only: true, send_only: true});
       }
     }
   } catch (e) {
@@ -266,7 +267,7 @@ async function get_nfts_for_account(account, detect_change_send=false, supportin
       } else {
         rep = send_block.contents.representative;
         mint_height = send_block.height;
-        if (detect_change_send) {
+        if (options.detect_change_send) {
           let send_b_rep = send_block.contents.representative;
           //skip online reps
           if (online_reps.includes(send_b_rep)) {
@@ -397,7 +398,7 @@ async function get_nft_info(account) {
 }
 
 async function get_pending_transactions(account) {
-  let resp = await axios.get('https://api.spyglass.pw/banano/v1/account/receivable-transactions', {headers: {'Authorization': api_secret}});
+  let resp = await axios.post('https://api.spyglass.pw/banano/v1/account/receivable-transactions', {address: account}, {headers: {'Authorization': api_secret}});
   return resp.data;
 }
 
@@ -408,7 +409,7 @@ async function account_is_supporting(account) {
     return true;
   }
   let dev_fund = "ban_3pdripjhteyymwjnaspc5nd96gyxgcdxcskiwwwoqxttnrncrxi974riid94";
-  let account_history = await get_account_history(account, undefined, send_only=true, count=150, from=[dev_fund]);
+  let account_history = await get_account_history(account, {send_only: true, count: 150, from: [dev_fund]});
   //filter account_history
   for (let i=0; i < account_history.length; i++) {
     let block = account_history[i];
@@ -424,12 +425,18 @@ async function account_is_supporting(account) {
 //get only block hash of pending, not pending nft info
 async function get_pending_nfts(account) {
   let pending = await get_pending_transactions(account);
+  let likely_txs = [];
   //change pending to hashes, get hashes
   //pending =
   for (let i=0; i < pending.length; i++) {
     let transaction = pending[i];
-    //standard nft stuff
+    //check if rep is abnormal and from verified minters
+    //if so add tx
+    if (verified_minters.includes(transaction.address)) {
+      likely_txs.push(transaction.hash);
+    }
   }
+  return likely_txs;
 }
 
 /*
@@ -451,5 +458,6 @@ module.exports = {
   set_online_reps: set_online_reps,
   verified_minters: verified_minters,
   account_is_supporting: account_is_supporting,
-  is_valid_account: is_valid_account
+  is_valid_account: is_valid_account,
+  get_pending_nfts: get_pending_nfts
 }

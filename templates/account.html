@@ -49,6 +49,13 @@
         <p>Don't see any NFTs? Check your wallet, make sure all pending transactions are received. The minter might not be whitelisted. Or maybe you just don't have any NFTs.</p>
       {% endif %}
     {% endif %}
+    {% if pending_nft_tx %}
+      {% if lang == "es" %}
+        <p>Puede que tengas NFTs pendientes por recibir en tx(s): {{ pending_nft_tx }}</p>
+      {% else %}
+        <p>You may have pending/receivable NFTs at tx (s): {{ pending_nft_tx }}</p>
+      {% endif %}
+    {% endif %}
     <div id="nft-grid">
       {% for nft in nfts %}
         <div class="nft">
@@ -77,10 +84,16 @@
         <p>Translated by WhiteFlag</p>
       {% endif %}
     </div>
-    {% if supporter and lang != "es" %}
-      <span id="depth-notice">Please note: NFTs received more than 400 transactions ago are not displayed (limitation of API)</span>
+    {% if supporter %}
+      {% if lang == "es" %}
+      <span id="depth-notice">Nota: Los NFTs recibidos hace más de 400 transacciones no se muestran (debido a limitación de la API)</span>
+      {% else %}
+        <span id="depth-notice">Please note: NFTs received more than 400 transactions ago are not displayed (limitation of API)</span>
+      {% endif %}
     {% elif lang != "es" %}
       <span id="depth-notice">Please note: NFTs received more than 120 transactions ago are not displayed (limitation of API)</span>
+    {% else %}
+     <span>Nota: Los NFTs recibidos hace más de 120 transacciones no se muestran (debido a limitación de la API)</span>
     {% endif %}
   </body>
 </html>

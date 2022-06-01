@@ -1,7 +1,8 @@
+Spanish translations of new quotes
+Query param to count
 switch to different gateway: https://nftstorage.link/ipfs/ maybe (query param to switch?)
 Number of mints
 Mint # (premium)
-NFT in pending (premium)
 Link to Protocol
 Atomic swaps????
 themes
@@ -21,3 +22,4 @@ x Support Change x
 x API x
 x Deep Search (premium) x
 x check if a minted nft by "change" is sent, it shows up (ish) x
+x NFT in pending (premium) x

@@ -33,14 +33,27 @@ app.get('/account/:account', async function (req, res) {
   } catch(e) {
     console.log(e);
   }
+  let pending_nft_tx;
+  if (supporter) {
+    try {
+      pending_nft_tx = await util.get_pending_nfts(account);
+      if (pending_nft_tx.length === 0) {
+        pending_nft_tx = undefined;
+      } else {
+        pending_nft_tx = JSON.stringify(pending_nft_tx);
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
   let nfts;
   try {
-    nfts = await util.get_nfts_for_account(account, detect_change_send=req.query.detect_change_send, supporter=supporter);
+    nfts = await util.get_nfts_for_account(account, {detect_change_send: req.query.detect_change_send, supporter: supporter});
   } catch (e) {
     console.log(e);
     return res.status(500).send('Error');
   }
-  return res.send(nunjucks.render('account.html', {nfts: nfts, account: account, lang: req.acceptsLanguages(['es']), supporter: supporter}));
+  return res.send(nunjucks.render('account.html', {nfts: nfts, account: account, lang: req.acceptsLanguages(['es']), supporter: supporter, pending_nft_tx: pending_nft_tx}));
 });
 
 app.get('/nft/:account', async function (req, res) {
