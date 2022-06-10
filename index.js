@@ -21,7 +21,7 @@ app.get('/account/:account', async function (req, res) {
   if (!util.is_valid_account(account)) {
     let address = aliases.get_alias(account);
     if (!address) {
-      return res.status(404).send('Error');
+      return res.status(404).send('Error: 404 Page Not Found');
     } else {
       return res.redirect('/account/'+address);
     }
@@ -32,6 +32,7 @@ app.get('/account/:account', async function (req, res) {
     supporter = await util.account_is_supporting(account);
   } catch(e) {
     console.log(e);
+    console.log(account);
   }
   let pending_nft_tx;
   if (supporter) {
@@ -43,17 +44,24 @@ app.get('/account/:account', async function (req, res) {
         pending_nft_tx = JSON.stringify(pending_nft_tx);
       }
     } catch (e) {
-      console.log(e)
+      console.log(e);
+      console.log(account);
     }
   }
   let nfts;
   try {
-    nfts = await util.get_nfts_for_account(account, {detect_change_send: req.query.detect_change_send, supporter: supporter});
+    nfts = await util.get_nfts_for_account(account, {detect_change_send: req.query.detect_change_send, offset: req.query.offset, supporter: supporter});
   } catch (e) {
     console.log(e);
     return res.status(500).send('Error');
   }
-  return res.send(nunjucks.render('account.html', {nfts: nfts, account: account, lang: req.acceptsLanguages(['es']), supporter: supporter, pending_nft_tx: pending_nft_tx}));
+  let supported_providers = ['ipfs.io', 'gateway.ipfs.io', 'cloudflare-ipfs.com', 'ipfs.eth.aragon.network', 'ipfs.fleek.co', 'nftstorage.link'];
+  let provider = req.query.provider;
+  //only approved providers
+  if (!provider || !supported_providers.includes(provider)) {
+    provider = "gateway.pinata.cloud";
+  }
+  return res.send(nunjucks.render('account.html', {nfts: nfts, account: account, lang: req.acceptsLanguages(['es']), supporter: supporter, provider: provider, pending_nft_tx: pending_nft_tx}));
 });
 
 app.get('/nft/:account', async function (req, res) {
@@ -63,10 +71,12 @@ app.get('/nft/:account', async function (req, res) {
     info = await util.get_nft_info(account);
   } catch (e) {
     console.log(e);
-    return res.send('Error');
+    console.log(account);
+    return res.status(500).send('Error');
   }
   if (!info) {
-    return res.send('Error');
+    console.log(info)
+    return res.status(500).send('Error');
   }
   let cid_json = info[0];
   let supply_info = info[1];
@@ -100,6 +110,7 @@ app.get('/drop/:id', async function (req, res) {
 app.post('/api/spyglass/hashes', async function (req, res) {
   //make sure comes from same site
   if (req.get('host') != "bannfts.prussiafan.club" || !req.body) {
+    //should instead return forbidden
     return res.status(500);
   }
   //req.body
@@ -111,7 +122,7 @@ app.post('/api/spyglass/hashes', async function (req, res) {
 app.get('/alias/:alias', function (req, res) {
   let address = aliases.get_alias(req.params.alias);
   if (!address) {
-    return res.status(404).send('Error');
+    return res.status(404).send('Error: 404 Page Not Found');
   } else {
     return res.redirect('/account/'+address);
   }
@@ -124,6 +135,10 @@ app.get('/api/v1/account/:account', async function (req, res) {
 
 app.get('/api/v1/verified', function (req, res) {
   return res.json(util.verified_minters);
+});
+
+app.get('/api/v1/v0_to_v1_cid/:v0_cid', async function (req, res) {
+  return res.send(await util.v0_to_v1(req.params.v0_cid));
 });
 
 app.listen(443, async () => {

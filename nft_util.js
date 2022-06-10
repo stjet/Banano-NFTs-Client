@@ -79,7 +79,7 @@ async function get_account_history(account, count=450) {
 */
 
 //async function get_account_history(account, receive_only=false, send_only=false, count=120, from=false) {
-async function get_account_history(account, options={receive_only: false, send_only: false, count: 120, from: false}) {
+async function get_account_history(account, options={receive_only: false, send_only: false, count: 120, from: false, offset: false}) {
   let payload = {
     address: account,
     size: String(options.count)
@@ -92,6 +92,9 @@ async function get_account_history(account, options={receive_only: false, send_o
   } else if (options.send_only) {
     payload.includeChange = false;
     payload.includeReceive = false;
+  }
+  if (options.offset) {
+    payload.offset = options.offset;
   }
   if (options.from) {
     payload.filterAddresses = options.from;
@@ -180,12 +183,13 @@ async function within_supply_constraints(supply_hash, mint_height) {
   }
 }
 
-async function get_nfts_for_account(account, options={detect_change_send: false, supporting: false}) {
+async function get_nfts_for_account(account, options={detect_change_send: false, offset: false, supporting: false}) {
+  //dont use cache if offset is used
   if (options.detect_change_send) {
     console.log('detect_change_send');
   }
   let block_height = await get_block_height(account);
-  if (account_nft_cache[account]) {
+  if (account_nft_cache[account] && !options.offset) {
     if (account_nft_cache[account].block_height == block_height) {
       return account_nft_cache[account].nfts;
     }
@@ -200,15 +204,15 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
     if (verified_minters.includes(account)) {
       //include changes
       if (options.supporting) {
-        account_history = await get_account_history(account, {count: 400});
+        account_history = await get_account_history(account, {count: 400, offset: options.offset});
       } else {
-        account_history = await get_account_history(account);
+        account_history = await get_account_history(account, {count: 120, offset: options.offset});
       }
     } else {
       if (options.supporting) {
-        account_history = await get_account_history(account, {receive_only: true, send_only: true, count: 400});
+        account_history = await get_account_history(account, {receive_only: true, send_only: true, count: 400, offset: options.offset});
       } else {
-        account_history = await get_account_history(account, {receive_only: true, send_only: true});
+        account_history = await get_account_history(account, {receive_only: true, send_only: true, offset: options.offset, count: 120});
       }
     }
   } catch (e) {
@@ -363,7 +367,9 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
     let nft = tracking[Object.keys(tracking)[j]];
     nfts.push(nft);
   }
-  account_nft_cache[account] = {nfts: nfts, block_height: await get_block_height(account)};
+  if (!options.offset) {
+    account_nft_cache[account] = {nfts: nfts, block_height: await get_block_height(account)};
+  }
   return nfts;
 }
 
@@ -446,6 +452,7 @@ async function get_mint_number() {
 */
 
 module.exports = {
+  v0_to_v1: v0_to_v1,
   account_to_cid: account_to_cid,
   get_cid_json: get_cid_json,
   get_account_history: get_account_history,

@@ -12,14 +12,14 @@
       {% else %}
         <p>Looks like this giveaway doesn't exist, or has ended.</p>
       {% endif %}
-      {% if info.extra %}
-        <p>Additional information: {{ info.extra }}</p>
-      {% endif %}
     {% else %}
       {% if lang == "es" %}
         <p>Envía 0.01 Banano a {{ info.nft }} (dirección de quemado), y el NFT estará en las billeteras ganadoras después del evento. Mira cómo luce el NFT <a href="https://bannfts.prussiafan.club/nft/{{ nft_rep }}">aquí</a>.</p>
       {% else %}
         <p>Send 0.01 Banano to {{ info.send_to }} (a burn address), and the NFT will be <b>after the event</b>. Check out what the NFT looks like <a href="https://bannfts.prussiafan.club/nft/{{ info.nft }}">here</a>.</p>
+      {% endif %}
+      {% if info.extra %}
+        <p>Additional information: {{ info.extra }}</p>
       {% endif %}
     {% endif %}
   </body>

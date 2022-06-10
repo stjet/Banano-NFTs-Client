@@ -63,10 +63,10 @@
           <h2><a href="/nft/{{ nft.rep }}">{{ nft.name }}</a></h2>
           {% if nft.animation_url %}
             <video controls autoplay>
-              <source src="https://gateway.pinata.cloud/ipfs/{{ nft.animation_url }}" type="video/mp4">
+              <source src="https://{{ provider }}/ipfs/{{ nft.animation_url }}" type="video/mp4">
             </video>
           {% else %}
-            <img src="https://gateway.pinata.cloud/ipfs/{{ nft.image }}" class="nft-img"></img>
+            <img src="https://{{ provider }}/ipfs/{{ nft.image }}" class="nft-img"></img>
           {% endif %}
           <br>
           {% if lang == "es" %}
