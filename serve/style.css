@@ -1,0 +1,23 @@
+
+body {
+	background-image: url(../images/GL1.png);
+}
+.style1 {color: #FFFFFF}
+-->
+  
+div.test
+{
+    width: 100%;
+	background-image:url(../images/textBG.png);
+    padding: 1px;
+    border: 2px solid #000;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+}
+.style2 {	color: #FFFFFF;
+	font-weight: bold;
+
+}
+  .style3 {color: #000000}
+  .style4 {color: #FFFF00}
+}

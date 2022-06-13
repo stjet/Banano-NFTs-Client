@@ -6,45 +6,8 @@
     <link href="/mint.css" rel="stylesheet" type="text/css" />
     <script src="/banano.js"></script>
     <script src="/b68.js"></script>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"><style type="text/css">
-<!--
-body {
-	background-image: url(../images/GL1.png);
-}
-.style2 {color: #FFFF00}
-.style3 {
-	color: #FFFFFF;
-	font-weight: bold;
-}
-.style4 {font-weight: bold}
--->
-  </style>
-  
-  <style type="text/css">
-div.test
-{
-    width: 100%;
-	background-image:url(../images/textBG.png);
-    padding: 1px;
-    border: 2px solid #000;
-    border-radius: 15px;
-    -moz-border-radius: 15px;
-}
-div.test1 {    width: 100%;
-	background-image:url(../images/textBG.png);
-    padding: 1px;
-    border: 2px solid #000;
-    border-radius: 15px;
-    -moz-border-radius: 15px;
-}
-div.test11 {width: 100%;
-	background-image:url(../images/textBG.png);
-    padding: 1px;
-    border: 2px solid #000;
-    border-radius: 15px;
-    -moz-border-radius: 15px;
-}
-  </style>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="stylesheet" href="style.css">
   </head>
   <body>
     <!--example:
@@ -77,8 +40,8 @@ div.test11 {width: 100%;
             <p><img src="../images/pru2.png" width="111" height="166"></p>
           </blockquote>
         </td>
-        <td width="85%" colspan="3"><div class="test11" style="border-color:#FFFF00">
-          <blockquote class="style3"><a href="../serve/mint.html" style="color:#FFFF00">Mint NFT</a> <span class="style2">—</span> <a href="../serve/support.html" style="color:#FFFF00">Support</a> <span class="style2">—</span> <a href="https://faucet.prussia.dev" style="color:#FFFF00">Prussia Faucet</a> </blockquote>
+        <td width="85%" colspan="3"><div class="test" style="border-color:#FFFF00">
+          <blockquote class="style2"><a href="../serve/mint.html" style="color:#FFFF00">Mint NFT</a> <span class="style4">—</span> <a href="../serve/support.html" style="color:#FFFF00">Support</a> <span class="style4">—</span> <a href="https://faucet.prussia.dev" style="color:#FFFF00">Prussia Faucet</a> </blockquote>
         </div></td>
       </tr>
       <tr>
@@ -88,90 +51,90 @@ div.test11 {width: 100%;
 		
 		<div id="nft-upload">
 		  <br>
-		  <span class="style3">
+		  <span class="style2">
 		  <blockquote>
 		    <p>Pinata API Key: </p>
           </blockquote>
 		  </span>
     <blockquote>
-      <p><span class="style3">
-            <input border="yellow" type="text" id="api-key">
+      <p><span class="style2">
+            <input type="text" id="api-key">
             </input>
       </span></p>
     </blockquote>
-    <span class="style3"><blockquote>
+    <span class="style2"><blockquote>
       <p>Pinata API Secret: </p>
     </blockquote>
     </span>
     <blockquote>
-      <p><span class="style3">
+      <p><span class="style2">
         <input type="text" id="api-secret">
         </input>
       </span></p>
     </blockquote>
-    <span class="style3"><blockquote>
+    <span class="style2"><blockquote>
       <p>Name: </p>
     </blockquote>
     </span>
     <blockquote>
-      <p><span class="style3">
+      <p><span class="style2">
         <input id="name" type="text">
         </input>
       </span></p>
     </blockquote>
-    <span class="style3"><blockquote>
+    <span class="style2"><blockquote>
       <p>Description: </p>
     </blockquote>
     </span>
     <blockquote>
-      <p id="description"><span class="style3">
+      <p id="description"><span class="style2">
         <textarea id="description"></textarea>
       </span></p>
     </blockquote>
-    <span class="style3"><blockquote>
+    <span class="style2"><blockquote>
       <p>Banano Seed: </p>
     </blockquote>
     </span>
     <blockquote>
-      <p><span class="style3">
+      <p><span class="style2">
         <input type="text" id="seed">
         </input>
       </span></p>
-      <p><span class="style3"><br>
+      <p><span class="style2"><br>
         <!--Image upload-->
         <input type="file" id="file-upload" accept="image/*">
       </span></p>
     </blockquote>
-    <span class="style3"><blockquote>
+    <span class="style2"><blockquote>
       <p>Max Supply (0 for unlimited): </p>
     </blockquote>
     </span>
     <blockquote>
-      <p><span class="style3">
+      <p><span class="style2">
         <input type="text" id="supply">
         </input>
           </span></p>
-      <button class="style4" onClick="mint()">Mint</button>
+      <button class="style3" onClick="mint()">Mint</button>
     </blockquote>
 	<br>
         </div></div>
     <!--Give mint rep--></td>
         <td width="45%" valign="top"><div class="test" style="border-color:#FFFF00"><div>
            
-              <p align="left" class="style2"><br> <blockquote><span class="style2"><b>Things to check:</b></span>         
+              <p align="left" class="style2"><br> <blockquote><span class="style4"><b>Things to check:</b></span>         
                 </p>
             </blockquote>
           <ul>
-      <li class="style2">Get your key and secret at https://pinata.cloud?</li>
-      <li class="style2">Did you upload a file?</li>
-      <li class="style2">Check for trailing spaces</li>
-      <li class="style2">Make sure account is opened</li>
-      <li class="style2">Are all fields filled?</li>
-      <li class="style2">What device are you using?</li>
-      <li class="style2">Check the developer console</li>
-      <li class="style2">Make sure 'pinfile' and 'pinjson' endpoint permissions were allowed in</li>
-      <li class="style2">Check for pinata keys unlimited uses</li>
-      <li class="style2">Make sure to contact me (prussia) after minting, I will need to whitelist the minting address</li>
+      <li class="style4">Get your key and secret at https://pinata.cloud?</li>
+      <li class="style4">Did you upload a file?</li>
+      <li class="style4">Check for trailing spaces</li>
+      <li class="style4">Make sure account is opened</li>
+      <li class="style4">Are all fields filled?</li>
+      <li class="style4">What device are you using?</li>
+      <li class="style4">Check the developer console</li>
+      <li class="style4">Make sure 'pinfile' and 'pinjson' endpoint permissions were allowed in</li>
+      <li class="style4">Check for pinata keys unlimited uses</li>
+      <li class="style4">Make sure to contact me (prussia) after minting, I will need to whitelist the minting address</li>
       </ul>
           <p>&nbsp;</p>
         </div></div></td>
