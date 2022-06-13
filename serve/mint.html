@@ -6,6 +6,45 @@
     <link href="/mint.css" rel="stylesheet" type="text/css" />
     <script src="/banano.js"></script>
     <script src="/b68.js"></script>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"><style type="text/css">
+<!--
+body {
+	background-image: url(../images/GL1.png);
+}
+.style2 {color: #FFFF00}
+.style3 {
+	color: #FFFFFF;
+	font-weight: bold;
+}
+.style4 {font-weight: bold}
+-->
+  </style>
+  
+  <style type="text/css">
+div.test
+{
+    width: 100%;
+	background-image:url(../images/textBG.png);
+    padding: 1px;
+    border: 2px solid #000;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+}
+div.test1 {    width: 100%;
+	background-image:url(../images/textBG.png);
+    padding: 1px;
+    border: 2px solid #000;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+}
+div.test11 {width: 100%;
+	background-image:url(../images/textBG.png);
+    padding: 1px;
+    border: 2px solid #000;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+}
+  </style>
   </head>
   <body>
     <!--example:
@@ -25,45 +64,131 @@
       With seed, send supply block. Then upload image/animation, and generate json, upload json. 
     -->
     <div id="result-success" style="display: none;">
-      <p>Success: Set the account's (account should be the one from the seed inputted) rep to <span id="nft-rep"></span> during the send and the NFT will mint+send.</p>
+      <p style="background-color:#FFFF00">Success: Set the account's (account should be the one from the seed inputted) rep to <span id="nft-rep"></span> during the send and the NFT will mint+send.</p>
     </div>
     <div id="result-failure" style="display: none;">
-      <p>Process Failed</p>
+      <p style="background-color:#FF0000">Process Failed</p>
     </div>
-    <div id="nft-upload">
-      <label for="api-key">Pinata API Key: </label><input type="text" id="api-key"></input>
-      <br>
-      <label for="api-secret">Pinata API Secret: </label><input type="text" id="api-secret"></input>
-      <br>
-      <label for="name">Name: </label><input id="name" type="text"></input>
-      <br>
-      <label for="description">Description: </label><textarea id="description"></textarea>
-      <br>
-      <label for="seed">Banano Seed: </label><input type="text" id="seed"></input>
-      <br>
-      <!--Image upload-->
-      <input type="file" id="file-upload" accept="image/*">
-      <br>
-      <label for="supply">Max Supply (0 for unlimited): </label><input type="text" id="supply"></input>
-      <br>
-      <button onclick="mint()">Mint</button>
-    </div>
-    <!--Give mint rep-->
+	
+	<table width="100%" border="0" cellpadding="3" cellspacing="3">
+      <tr>
+        <td width="15%">
+          <blockquote>
+            <p><img src="../images/pru2.png" width="111" height="166"></p>
+          </blockquote>
+        </td>
+        <td width="85%" colspan="3"><div class="test11" style="border-color:#FFFF00">
+          <blockquote class="style3"><a href="../serve/mint.html" style="color:#FFFF00">Mint NFT</a> <span class="style2">—</span> <a href="../serve/support.html" style="color:#FFFF00">Support</a> <span class="style2">—</span> <a href="https://faucet.prussia.dev" style="color:#FFFF00">Prussia Faucet</a> </blockquote>
+        </div></td>
+      </tr>
+      <tr>
+        <td width="15%" colspan="2" rowspan="2" valign="top"><div class="test" style="border-color:#FFFFFF">
+		
+		
+		
+		<div id="nft-upload">
+		  <br>
+		  <span class="style3">
+		  <blockquote>
+		    <p>Pinata API Key: </p>
+          </blockquote>
+		  </span>
+    <blockquote>
+      <p><span class="style3">
+            <input border="yellow" type="text" id="api-key">
+            </input>
+      </span></p>
+    </blockquote>
+    <span class="style3"><blockquote>
+      <p>Pinata API Secret: </p>
+    </blockquote>
+    </span>
+    <blockquote>
+      <p><span class="style3">
+        <input type="text" id="api-secret">
+        </input>
+      </span></p>
+    </blockquote>
+    <span class="style3"><blockquote>
+      <p>Name: </p>
+    </blockquote>
+    </span>
+    <blockquote>
+      <p><span class="style3">
+        <input id="name" type="text">
+        </input>
+      </span></p>
+    </blockquote>
+    <span class="style3"><blockquote>
+      <p>Description: </p>
+    </blockquote>
+    </span>
+    <blockquote>
+      <p id="description"><span class="style3">
+        <textarea id="description"></textarea>
+      </span></p>
+    </blockquote>
+    <span class="style3"><blockquote>
+      <p>Banano Seed: </p>
+    </blockquote>
+    </span>
+    <blockquote>
+      <p><span class="style3">
+        <input type="text" id="seed">
+        </input>
+      </span></p>
+      <p><span class="style3"><br>
+        <!--Image upload-->
+        <input type="file" id="file-upload" accept="image/*">
+      </span></p>
+    </blockquote>
+    <span class="style3"><blockquote>
+      <p>Max Supply (0 for unlimited): </p>
+    </blockquote>
+    </span>
+    <blockquote>
+      <p><span class="style3">
+        <input type="text" id="supply">
+        </input>
+          </span></p>
+      <button class="style4" onClick="mint()">Mint</button>
+    </blockquote>
+	<br>
+        </div></div>
+    <!--Give mint rep--></td>
+        <td width="45%" valign="top"><div class="test" style="border-color:#FFFF00"><div>
+           
+              <p align="left" class="style2"><br> <blockquote><span class="style2"><b>Things to check:</b></span>         
+                </p>
+            </blockquote>
+          <ul>
+      <li class="style2">Get your key and secret at https://pinata.cloud?</li>
+      <li class="style2">Did you upload a file?</li>
+      <li class="style2">Check for trailing spaces</li>
+      <li class="style2">Make sure account is opened</li>
+      <li class="style2">Are all fields filled?</li>
+      <li class="style2">What device are you using?</li>
+      <li class="style2">Check the developer console</li>
+      <li class="style2">Make sure 'pinfile' and 'pinjson' endpoint permissions were allowed in</li>
+      <li class="style2">Check for pinata keys unlimited uses</li>
+      <li class="style2">Make sure to contact me (prussia) after minting, I will need to whitelist the minting address</li>
+      </ul>
+          <p>&nbsp;</p>
+        </div></div></td>
+        <td width="40%" colspan="2" rowspan="2" valign="top">&nbsp;</td>
+      </tr>
+      <tr>
+        <td valign="top">&nbsp;</td>
+      </tr>
+      <tr>
+        <td colspan="5">&nbsp;</td>
+      </tr>
+    </table>
+  
     <br>
-    <b>Things to check:</b>
-    <ul>
-      <li>Get your key and secret at https://pinata.cloud?</li>
-      <li>Did you upload a file?</li>
-      <li>Check for trailing spaces</li>
-      <li>Make sure account is opened</li>
-      <li>Are all fields filled?</li>
-      <li>What device are you using?</li>
-      <li>Check the developer console</li>
-      <li>Make sure 'pinfile' and 'pinjson' endpoint permissions were allowed in</li>
-      <li>Check for pinata keys unlimited uses</li>
-      <li>Make sure to contact me (prussia) after minting, I will need to whitelist the minting address</li>
-    </ul>
-    <script>
+    <p>&nbsp;    </p>
+    <p>
+      <script>
       const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
       window.bananocoinBananojs.setBananodeApiUrl('https://kaliumapi.appditto.com/api');
       async function pin_json(json_data) {
@@ -177,5 +302,6 @@
         document.getElementById('nft-rep').innerText = nft_rep_addr;
       }
     </script>
+      </p>
   </body>
 </html>
