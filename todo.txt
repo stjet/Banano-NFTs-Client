@@ -31,3 +31,4 @@ x Deep Search (premium) x
 x check if a minted nft by "change" is sent, it shows up (ish) x
 x NFT in pending (premium) x
 x offset query param x
+x send all nfts: ban_1senda11nfts1111111111111111111111111111111111111111rtbtxits x

@@ -20,6 +20,10 @@ let supporting_cache = [];
 //cache should store nfts and block height at snapshot. If block height is unchanged, keep using cache
 //let account_history_cache = {};
 
+//check outgoing transactions. If this detected in send, all previously returned nfts are not in wallet
+//check ingoing transactions. If received here, this is painful and will be implemented later
+const SEND_ALL_REP = "ban_1senda11nfts1111111111111111111111111111111111111111rtbtxits";
+
 let verified_minters = String(fs.readFileSync('verified_minters.txt')).split('\n').map(function(item) {
   return item.trim();
 });
@@ -183,7 +187,7 @@ async function within_supply_constraints(supply_hash, mint_height) {
   }
 }
 
-async function get_nfts_for_account(account, options={detect_change_send: false, offset: false, supporting: false}) {
+async function get_nfts_for_account(account, options={detect_change_send: false, offset: false, supporting: false, recursive: false}) {
   //dont use cache if offset is used
   if (options.detect_change_send) {
     console.log('detect_change_send');
@@ -259,6 +263,13 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
         if (invalid_rep_mint_blocks.includes(send_b_rep)) {
           continue;
         }
+        if (send_b_rep === SEND_ALL_REP && !options.recursive) {
+          //use offset and size to get nfts of account at the time
+          let all_sent_nfts = get_nfts_for_account(account_history[i].sourceAccount, {
+            detect_change_send: detect_change_send, offset: block_height-account_history[i].height, supporting: false, recursive: true
+          });
+          nfts = [].concat(all_sent_nfts, nfts);
+        }
         let pub_key_hash = bananojs.getAccountPublicKey(send_b_rep);
         //most of the requests are from here
         let mint_block = await get_block_hash(pub_key_hash);
@@ -270,6 +281,13 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
         mint_height = mint_block.height;
       } else {
         rep = send_block.contents.representative;
+        if (rep === SEND_ALL_REP && !options.recursive) {
+          //use offset and size to get nfts of account at the time
+          let all_sent_nfts = get_nfts_for_account(account_history[i].sourceAccount, {
+            detect_change_send: detect_change_send, offset: block_height-account_history[i].height, supporting: false, recursive: true
+          });
+          nfts = [].concat(all_sent_nfts, nfts);
+        }
         mint_height = send_block.height;
         if (options.detect_change_send) {
           let send_b_rep = send_block.contents.representative;
@@ -315,6 +333,12 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
       //send not correct
       let rep = account_history[i].contents.representative;
       if (online_reps.includes(rep)) {
+        continue;
+      }
+      if (rep === SEND_ALL_REP) {
+        console.log("send all!", account);
+        //clear tracking, because send all rep means all nfts are sent
+        tracking = {};
         continue;
       }
       if (invalid_rep_mint_blocks.includes(rep)) {
