@@ -55,11 +55,16 @@ app.get('/account/:account', async function (req, res) {
     console.log(e);
     return res.status(500).send('Error');
   }
-  let supported_providers = ['ipfs.io', 'gateway.ipfs.io', 'cloudflare-ipfs.com', 'ipfs.eth.aragon.network', 'ipfs.fleek.co', 'nftstorage.link'];
+  let supported_providers = ['ipfs.io', 'gateway.ipfs.io', 'cloudflare-ipfs.com', 'ipfs.eth.aragon.network', 'ipfs.fleek.co', 'nftstorage.link', 'http://ipfs.atomichub.io', 'http://ipfs.anonymize.com', 'gateway.pinata.cloud'];
+  let fast_providers = ['gateway.ipfs.io', 'nftstorage.link']
   let provider = req.query.provider;
   //only approved providers
   if (!provider || !supported_providers.includes(provider)) {
     provider = "gateway.pinata.cloud";
+    if (nfts.length > 2) {
+      //if more than 2 nfts, dont use pinata, use a random other provider
+      provider = fast_providers[Math.floor(Math.random()*fast_providers.length)];
+    }
   }
   return res.send(nunjucks.render('account.html', {nfts: nfts, account: account, lang: req.acceptsLanguages(['es']), supporter: supporter, provider: provider, pending_nft_tx: pending_nft_tx}));
 });
