@@ -207,6 +207,7 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
   try {
     if (verified_minters.includes(account)) {
       //include changes
+      //detect_change_send is true, essentially
       if (options.supporting) {
         account_history = await get_account_history(account, {count: 400, offset: options.offset});
       } else {
@@ -265,8 +266,9 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
         }
         if (send_b_rep === SEND_ALL_REP && !options.recursive) {
           //use offset and size to get nfts of account at the time
-          let all_sent_nfts = get_nfts_for_account(account_history[i].sourceAccount, {
-            detect_change_send: detect_change_send, offset: block_height-account_history[i].height, supporting: false, recursive: true
+          let sender_block_height = await get_block_height(account_history[i].sourceAccount);
+          let all_sent_nfts = await get_nfts_for_account(account_history[i].sourceAccount, {
+            detect_change_send: options.detect_change_send, offset: sender_block_height-send_block.height+1, supporting: false, recursive: true
           });
           nfts = [].concat(all_sent_nfts, nfts);
         }
@@ -283,8 +285,9 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
         rep = send_block.contents.representative;
         if (rep === SEND_ALL_REP && !options.recursive) {
           //use offset and size to get nfts of account at the time
-          let all_sent_nfts = get_nfts_for_account(account_history[i].sourceAccount, {
-            detect_change_send: detect_change_send, offset: block_height-account_history[i].height, supporting: false, recursive: true
+          let sender_block_height = await get_block_height(account_history[i].sourceAccount);
+          let all_sent_nfts = await get_nfts_for_account(account_history[i].sourceAccount, {
+            detect_change_send: options.detect_change_send, offset: sender_block_height-send_block.height+1, supporting: false, recursive: true
           });
           nfts = [].concat(all_sent_nfts, nfts);
         }
@@ -487,7 +490,6 @@ module.exports = {
   get_nft_info: get_nft_info,
   verified_minters: verified_minters,
   set_online_reps: set_online_reps,
-  verified_minters: verified_minters,
   account_is_supporting: account_is_supporting,
   is_valid_account: is_valid_account,
   get_pending_nfts: get_pending_nfts

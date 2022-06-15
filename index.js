@@ -50,7 +50,7 @@ app.get('/account/:account', async function (req, res) {
   }
   let nfts;
   try {
-    nfts = await util.get_nfts_for_account(account, {detect_change_send: req.query.detect_change_send, offset: req.query.offset, supporter: supporter});
+    nfts = await util.get_nfts_for_account(account, {detect_change_send: req.query.detect_change_send === "1", offset: req.query.offset, supporter: supporter});
   } catch (e) {
     console.log(e);
     return res.status(500).send('Error');
