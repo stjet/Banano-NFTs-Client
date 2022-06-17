@@ -18,6 +18,10 @@
         document.getElementById("address").placeholder = "Tu Dirección de Banano";
       }
       function go() {
+        if (!document.getElementById('address').value) {
+          //dont allow empty fields
+          return;
+        }
         window.location = '/account/'+document.getElementById('address').value;
       }
     </script>

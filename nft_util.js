@@ -193,6 +193,7 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
   }
   let block_height = await get_block_height(account);
   //dont use cache if offset is used
+  //this means !0 == true which is what we want, because 0 offset means no offset
   if (account_nft_cache[account] && !options.offset) {
     if (account_nft_cache[account].block_height == block_height) {
       return account_nft_cache[account].nfts;
@@ -394,6 +395,7 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
     let nft = tracking[Object.keys(tracking)[j]];
     nfts.push(nft);
   }
+  //this means !0 == true which is what we want, because 0 offset means no offset
   if (!options.offset) {
     account_nft_cache[account] = {nfts: nfts, block_height: await get_block_height(account)};
   }
@@ -472,11 +474,13 @@ async function get_pending_nfts(account) {
   return likely_txs;
 }
 
-/*
-async function get_mint_number() {
-  //
+async function get_mint_number(mint_hash) {
+  //get mint_hash's transaction
+  //get block height of supply block
+  //get transactions offset by current height and mint hash's height, with the size being the difference in heights of supply and mint hash's
+  //check representatives of all transactions in between
+  //count, return count
 }
-*/
 
 module.exports = {
   v0_to_v1: v0_to_v1,
