@@ -16,6 +16,8 @@ let nft_cache = {};
 let invalid_rep_mint_blocks = [];
 let block_cache = {};
 let supporting_cache = [];
+let unopened_reps_cache = [];
+let checked_opened_reps_cache = [];
 //let owners_cache = {};
 //cache should store nfts and block height at snapshot. If block height is unchanged, keep using cache
 //let account_history_cache = {};
@@ -104,22 +106,38 @@ async function get_account_history(account, options={receive_only: false, send_o
     payload.filterAddresses = options.from;
   }
   let resp = await axios.post('https://api.spyglass.pw/banano/v2/account/confirmed-transactions', payload, {headers: {'Authorization': api_secret}});
-  return resp.data;
+  let req_history = resp.data;
+  if (account === "ban_3owtdu1hrqbai9zzf5bf6jtt1gbezktyk6ae6rk5g5cyi3pmrsympg3pngai") {
+  }
+  if (options.count > 500 && resp.data[resp.data.length-1].height !== "1") {
+    options.offset = 500;
+    options.count = Number(options.count)-500;
+    let second_history = await get_account_history(account, options);
+    req_history = req_history.concat(second_history);
+  }
+  return req_history;
 }
 
 async function is_valid_cidaccount(account) {
-  //check for unopened
-  //it must be unopened
-  try {
-    let ah = await get_account_history(account);
-    //v2 error handling
-    if (ah.length !== 0) {
-      return false;
-    }
-  } catch (e) {
-  }
   if (online_reps.includes(account)) {
     return false;
+  }
+  //check for unopened
+  //it must be unopened
+  if (unopened_reps_cache.includes(account)) {
+    //do nothing, continue
+  } else if (checked_opened_reps_cache.includes(account)) {
+    return false;
+  } else {
+    try {
+      let ah = await get_account_history(account);
+      //v2 error handling
+      if (ah.length !== 0) {
+        checked_opened_reps_cache.push(account);
+        return false;
+      }
+    } catch (e) {}
+    unopened_reps_cache.push(account);
   }
   let cid_json = await get_cid_json(account_to_cid(account));
   if (!cid_json) {
@@ -148,8 +166,18 @@ async function get_block_hash(hash) {
 async function get_block_hashes(hashes) {
   //limit 500
   try {
+    let leftover_hashes;
+    if (hashes.length > 500) {
+      leftover_hashes = hashes.slice(500, hashes.length);
+      hashes = hashes.slice(0,500);
+    }
     let resp = await axios.post('https://api.spyglass.pw/banano/v1/blocks', {blocks: hashes}, {headers: {'Authorization': api_secret}});
-    return resp.data;
+    let req_hashes = resp.data;
+    if (leftover_hashes && leftover_hashes.length > 0) {
+      let leftover_hashes_resp = await get_block_hashes(leftover_hashes);
+      req_hashes = req_hashes.concat(leftover_hashes_resp);
+    }
+    return req_hashes;
   } catch (e) {
     return false;
   }
@@ -210,15 +238,15 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
       //include changes
       //detect_change_send is true, essentially
       if (options.supporting) {
-        account_history = await get_account_history(account, {count: 400, offset: options.offset});
+        account_history = await get_account_history(account, {count: 1000, offset: options.offset});
       } else {
-        account_history = await get_account_history(account, {count: 120, offset: options.offset});
+        account_history = await get_account_history(account, {count: 500, offset: options.offset});
       }
     } else {
       if (options.supporting) {
-        account_history = await get_account_history(account, {receive_only: true, send_only: true, count: 400, offset: options.offset});
+        account_history = await get_account_history(account, {receive_only: true, send_only: true, count: 1000, offset: options.offset});
       } else {
-        account_history = await get_account_history(account, {receive_only: true, send_only: true, offset: options.offset, count: 120});
+        account_history = await get_account_history(account, {receive_only: true, send_only: true, offset: options.offset, count: 500});
       }
     }
   } catch (e) {
@@ -444,7 +472,7 @@ async function account_is_supporting(account) {
     return true;
   }
   let dev_fund = "ban_3pdripjhteyymwjnaspc5nd96gyxgcdxcskiwwwoqxttnrncrxi974riid94";
-  let account_history = await get_account_history(account, {send_only: true, count: 150, from: [dev_fund]});
+  let account_history = await get_account_history(account, {send_only: true, count: 500, from: [dev_fund]});
   //filter account_history
   for (let i=0; i < account_history.length; i++) {
     let block = account_history[i];

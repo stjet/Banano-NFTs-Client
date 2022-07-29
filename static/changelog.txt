@@ -1,3 +1,4 @@
 5/31/22: Premium accounts can now see if they have a NFT pending in their account
 6/11/22: Added ?provider= url query param to change IPFS provider, for faster loading times. Supported: ['ipfs.io', 'gateway.ipfs.io', 'cloudflare-ipfs.com', 'ipfs.eth.aragon.network', 'ipfs.fleek.co', 'nftstorage.link']
 6/12/22: send all nfts rep ban_1senda11nfts1111111111111111111111111111111111111111rtbtxits supported? (untested)
+7/28/22: upped depth checking from 120->500 for non supporters and 400->1000 for supporters

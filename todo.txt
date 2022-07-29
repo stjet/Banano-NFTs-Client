@@ -4,6 +4,7 @@ Recognize atomic swaps, but not facilitate (probably)
 Cache in DB! Or at least verified minters
 Crawling verified minters for faster load and less api calls
 Link to Protocol
+trace nft endpoint
 themes
 Burn
 List of owners
