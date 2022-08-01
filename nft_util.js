@@ -133,7 +133,7 @@ async function is_valid_atomic_rep(rep, account) {
   if (!rep.startsWith('ban_1atomicswap')) {
     return false;
   }
-  let pub_key = bananojs.getAccountPublicKey(supply_rep);
+  let pub_key = bananojs.getAccountPublicKey(rep);
   let asset_height = parseInt(pub_key.slice(13, 23), 16);
   let nft_block = await block_at_height(account, asset_height);
   if (!nft_block) {
@@ -342,15 +342,6 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
       let rep;
       let mint_height;
       //atomic swap info
-      /*
-      let selling_nft = Object.values(tracking).filter(function(item) {
-        return item.receive_hash === nft_block.hash;
-      });
-      if (selling_nft.length !== 1) {
-        return false;
-      }
-      selling_nft = selling_nft[0];
-      */
       let atomic_start_info = await is_valid_atomic_rep(send_block.contents.representative, send_block.blockAccount);
       if (atomic_start_info && send_block.blockAccount !== account) {
         if (account_history[i+1].subtype === "send" && Number(account_history[i+1].amount) >= atomic_start_info.send_price) {
@@ -358,7 +349,7 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
           let atomic_send_bh = await get_block_height(send_block.blockAccount);
           let atomic_start_bh = send_block.height;
           let atomic_nft_snapshot = await get_nfts_for_account(account, {detect_change_send: true, offset: atomic_send_bh-atomic_start_bh+1, supporting: false, recursive: true});
-          let atomic_nft_snapshot = atomic_nft_snapshot.filter(function(item) {
+          atomic_nft_snapshot = atomic_nft_snapshot.filter(function(item) {
             return item.receive_hash === atomic_start_info.receive_hash;
           });
           if (atomic_nft_snapshot.length === 0) {
@@ -457,7 +448,7 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
       if (online_reps.includes(rep)) {
         continue;
       }
-      let atomic_start_info = is_valid_atomic_rep(rep, account);
+      let atomic_start_info = await is_valid_atomic_rep(rep, account);
       if (atomic_start_info) {
         //self sends not permitted for atomic swaps
         if (account === account_history[i].contents.linkAsAccount) {
