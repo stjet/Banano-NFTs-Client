@@ -33,3 +33,7 @@ x check if a minted nft by "change" is sent, it shows up (ish) x
 x NFT in pending (premium) x
 x offset query param x
 x send all nfts: ban_1senda11nfts1111111111111111111111111111111111111111rtbtxits x
+
+
+The future of Banano NFTs Client?
+Code was written rushed over a weekend so the r/place NFTs could be viewed. So the code is very bad and hard to maintain. A dedicated "attack" could throw it off for sure. I think it is best if a dedicated, reliable, and accurate Banano NFTs marketplace + explorer was created, and replaced the client. It doesn't really cost me anything to run this, so it'll probably keep running, but hopefully a good marketplace arises and replaces this. Who knows how long that'll take though.
