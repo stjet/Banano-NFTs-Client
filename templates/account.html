@@ -72,11 +72,11 @@
           {% if lang == "es" %}
             <button onclick="show_ownership('{{ nft.receive_hash }}', '{{ nft.rep }}', '{{ nft.properties.issuer }}')">Historial de Propiedad</button>
             <button onclick="how_to_send('{{ nft.receive_hash }}', '{{ nft.properties.issuer }}')">Enviar NFT</button>
-            <p>{{ nft.description }} <b>Cantidad en Posesión: {{ nft.quantity }}</b> <b>Veracidad de la Propiedad: {% if nft.certain %}Verdadero{% else %}Falso{% endif %}</b></p>
+            <p>{{ nft.description }} <b>Veracidad de la Propiedad: {% if nft.certain %}Verdadero{% else %}Falso{% endif %}</b></p>
           {% else %}
             <button onclick="show_ownership('{{ nft.receive_hash }}', '{{ nft.rep }}', '{{ nft.properties.issuer }}')">Ownership History</button>
             <button onclick="how_to_send('{{ nft.receive_hash }}', '{{ nft.properties.issuer }}')">Send Me</button>
-            <p>{{ nft.description }} <b>Quantity Owned: {{ nft.quantity }}</b> <b>Certainty of Ownership: {{ nft.certain }}</b></p>
+            <p>{{ nft.description }} <b>Certainty of Ownership: {{ nft.certain }}</b></p>
           {% endif %}
         </div>
       {% endfor %}

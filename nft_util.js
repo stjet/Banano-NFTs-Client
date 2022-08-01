@@ -217,6 +217,9 @@ async function get_block_hashes(hashes) {
 
 async function get_supply_block_rep(hash) {
   let supply_block = await get_block_hash(hash);
+  if (!supply_block) {
+    console.log("get_supply_block: "+hash)
+  }
   let supply_rep = supply_block.contents.representative;
   //decode the info from supply rep
   if (!supply_rep.startsWith('ban_1nftsupp1y11111')) {
@@ -331,7 +334,7 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
   });
   let corresponding_send_blocks = await get_block_hashes(send_block_hashes);
   //mint block optimizations not possible currently
-  //start actual tracking
+  //start actual tracking, values are nft, keys are mint hash
   let tracking = {};
   //state was set the previous iteration, and no further back  
   for (let i=0; i < account_history.length; i++) {
@@ -344,27 +347,26 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
       //atomic swap info
       let atomic_start_info = await is_valid_atomic_rep(send_block.contents.representative, send_block.blockAccount);
       if (atomic_start_info && send_block.blockAccount !== account) {
-        if (account_history[i+1].subtype === "send" && Number(account_history[i+1].amount) >= atomic_start_info.send_price) {
-          //nft is owned by this account now... we just need to figure out how to get this
-          let atomic_send_bh = await get_block_height(send_block.blockAccount);
-          let atomic_start_bh = send_block.height;
-          let atomic_nft_snapshot = await get_nfts_for_account(account, {detect_change_send: true, offset: atomic_send_bh-atomic_start_bh+1, supporting: false, recursive: true});
-          atomic_nft_snapshot = atomic_nft_snapshot.filter(function(item) {
-            return item.receive_hash === atomic_start_info.receive_hash;
-          });
-          if (atomic_nft_snapshot.length === 0) {
-            continue;
-          }
-          let atomic_nft_bought = atomic_nft_snapshot[0];
-          if (tracking[atomic_nft_bought]) {
-            tracking[atomic_nft_bought].quantity = tracking[atomic_nft_bought].quantity + 1;
-          } else {
-            tracking[atomic_nft_bought] = atomic_nft_bought;
-            tracking[atomic_nft_bought].quantity = 1;
+        if (account_history[i+1]) {
+          if (account_history[i+1].subtype === "send" && Number(account_history[i+1].amount) >= atomic_start_info.send_price) {
+            //nft is owned by this account now...
+            let atomic_send_bh = await get_block_height(send_block.blockAccount);
+            let atomic_start_bh = send_block.height;
+            let atomic_nft_snapshot = await get_nfts_for_account(account, {detect_change_send: true, offset: atomic_send_bh-atomic_start_bh+1, supporting: false, recursive: true});
+            atomic_nft_snapshot = atomic_nft_snapshot.filter(function(item) {
+              return item.receive_hash === atomic_start_info.receive_hash;
+            });
+            if (atomic_nft_snapshot.length === 0) {
+              continue;
+            }
+            let atomic_nft_bought = atomic_nft_snapshot[0];
+            //transferred
+            tracking[atomic_nft_bought.mint_hash] = atomic_nft_bought;
           }
         }
       }
       //checks if nft comes directly from a verified minter
+      let mint_block;
       if (!verified_minters.includes(account_history[i].sourceAccount)) {
         let send_b_rep = send_block.contents.representative;
         //skip online reps
@@ -381,10 +383,11 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
             detect_change_send: options.detect_change_send, offset: sender_block_height-send_block.height+1, supporting: false, recursive: true
           });
           nfts = [].concat(all_sent_nfts, nfts);
+          continue;
         }
         let pub_key_hash = bananojs.getAccountPublicKey(send_b_rep);
         //most of the requests are from here
-        let mint_block = await get_block_hash(pub_key_hash);
+        mint_block = await get_block_hash(pub_key_hash);
         if (!mint_block) {
           invalid_rep_mint_blocks.push(send_b_rep);
           continue;
@@ -400,8 +403,9 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
             detect_change_send: options.detect_change_send, offset: sender_block_height-send_block.height+1, supporting: false, recursive: true
           });
           nfts = [].concat(all_sent_nfts, nfts);
+          continue;
         }
-        mint_height = send_block.height;
+        mint_block = send_block;
         if (options.detect_change_send) {
           let send_b_rep = send_block.contents.representative;
           //skip online reps
@@ -413,7 +417,7 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
           }
           let pub_key_hash = bananojs.getAccountPublicKey(send_b_rep);
           //most of the requests are from here
-          let mint_block = await get_block_hash(pub_key_hash);
+          mint_block = await get_block_hash(pub_key_hash);
           if (mint_block) {
             rep = mint_block.contents.representative;
           }
@@ -428,18 +432,16 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
         } else {
           cid_json.certain = true;
         }
-        let within_supply_confident = await within_supply_constraints(cid_json.properties.supply_block_hash, mint_height);
+        let within_supply_confident = await within_supply_constraints(cid_json.properties.supply_block_hash, mint_block.height);
         if (!within_supply_confident) {
           cid_json.certain = false;
         }
         cid_json.receive_hash = hashes[i];
         cid_json.rep = rep;
-        if (!tracking[rep]) {
-          cid_json.quantity = 1;
-          tracking[rep] = cid_json;
+        if (!tracking[mint_block.hash]) {
+          tracking[mint_block.hash] = cid_json;
         } else {
-          cid_json.quantity = tracking[rep].quantity+1;
-          tracking[rep] = cid_json;
+          tracking[mint_block.hash] = cid_json;
         }
       }
     } else if (account_history[i].subtype === "send") {
@@ -484,10 +486,7 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
         //make sure it is a payment
         if (atomic_buy.subtype === "send" && Number(atomic_buy.amount) >= atomic_start_info.send_price) {
           //I guess the nft is transferred
-          tracking[tracking_name].quantity = tracking[tracking_name].quantity-1;
-          if (tracking[tracking_name].quantity === 0) {
-            delete tracking[tracking_name];
-          }
+          delete tracking[tracking_name];
         } else {
           //cancel, nothing happens, I guess?
         }
@@ -512,19 +511,16 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
       let cid_json = await is_valid_cidaccount(rep);
       //this means nft has been sent. remove it
       if (cid_json) {
-        if (!tracking[rep]) {
+        if (!tracking[mint_block.hash]) {
           console.log('nft sent but never existed in account. hmm')
           //shouldnt happen... but whatever
           continue;
         }
         //make sure is not locked
-        if (tracking[rep].locked.includes(cid_json.receive_hash)) {
+        if (tracking[mint_block.hash].locked.includes(cid_json.receive_hash)) {
           continue;
         }
-        tracking[rep].quantity = tracking[rep].quantity-1;
-        if (tracking[rep].quantity === 0) {
-          delete tracking[rep];
-        }
+        delete tracking[mint_block.hash];
       }
       continue;
     } else if (account_history[i].subtype === "change") {
@@ -540,17 +536,13 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
         }
         cid_json.rep = rep;
         cid_json.receive_hash = hashes[i];
-        if (!tracking[rep]) {
-          cid_json.quantity = 1;
-          tracking[rep] = cid_json;
-        } else {
-          tracking[rep] = cid_json;
-        }
+        tracking[hashes[i]] = cid_json;
       }
     }
   }
   for (let j=0; j < Object.keys(tracking).length; j++) {
     let nft = tracking[Object.keys(tracking)[j]];
+    nft.mint_hash = Object.keys(tracking)[j];
     nfts.push(nft);
   }
   //this means !0 == true which is what we want, because 0 offset means no offset
