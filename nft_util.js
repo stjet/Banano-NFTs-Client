@@ -66,10 +66,11 @@ async function get_cid_json(cid) {
     });
   } catch (e) {
     try {
-      resp = await axios.get("https://ipfs.eth.aragon.network/ipfs/"+v0_to_v1(cid), {
+      //ipfs.eth.aragon.network
+      resp = await axios.get("https://ipfs.io/ipfs/"+v0_to_v1(cid), {
         timeout: 2000
       });
-    } catch {
+    } catch (e) {
       return false;
     }
   }
@@ -107,8 +108,6 @@ async function get_account_history(account, options={receive_only: false, send_o
   }
   let resp = await axios.post('https://api.spyglass.pw/banano/v2/account/confirmed-transactions', payload, {headers: {'Authorization': api_secret}});
   let req_history = resp.data;
-  if (account === "ban_3owtdu1hrqbai9zzf5bf6jtt1gbezktyk6ae6rk5g5cyi3pmrsympg3pngai") {
-  }
   if (options.count > 500 && resp.data[resp.data.length-1].height !== "1") {
     options.offset = 500;
     options.count = Number(options.count)-500;
@@ -352,7 +351,7 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
             //nft is owned by this account now...
             let atomic_send_bh = await get_block_height(send_block.blockAccount);
             let atomic_start_bh = send_block.height;
-            let atomic_nft_snapshot = await get_nfts_for_account(account, {detect_change_send: true, offset: atomic_send_bh-atomic_start_bh+1, supporting: false, recursive: true});
+            let atomic_nft_snapshot = await get_nfts_for_account(send_block.blockAccount, {detect_change_send: true, offset: atomic_send_bh-atomic_start_bh+1, supporting: false, recursive: true});
             atomic_nft_snapshot = atomic_nft_snapshot.filter(function(item) {
               return item.receive_hash === atomic_start_info.receive_hash;
             });
@@ -451,35 +450,31 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
         continue;
       }
       let atomic_start_info = await is_valid_atomic_rep(rep, account);
+      console.log(atomic_start_info)
       if (atomic_start_info) {
         //self sends not permitted for atomic swaps
         if (account === account_history[i].contents.linkAsAccount) {
           continue;
         }
         //see if the buyers actually bought or not
-        let atomic_buy = await block_at_height(account_history[i].contents.linkAsAccount, atomic_start_info.receive_height);
+        let atomic_buy = await block_at_height(account_history[i].contents.linkAsAccount, atomic_start_info.receive_height+1);
         //get nft info
         let selling_nft = Object.values(tracking).filter(function(item) {
-          return item.receive_hash === atomic_buy.receive_hash;
+          return item.receive_hash === atomic_start_info.receive_hash;
         });
         if (selling_nft.length === 0) {
-          console.log('no nft found, probably already sent')
+          console.log('atomic swap: no nft found, probably already sent')
           continue;
         }
         selling_nft = selling_nft[0];
         //ignore if nft is already being sold
-        if (atomic_start_info.selling_nft.locked) {
-          if (atomic_start_info.selling_nft.locked.includes(atomic_start_info.receive_height)) {
-            continue;
-          }
+        if (selling_nft.locked) {
+          continue;
         }
         let tracking_name = Object.keys(tracking)[Object.values(tracking).indexOf(selling_nft)];
         if (!atomic_buy) {
           //lock NFT, selling has not completed
-          if (!tracking[tracking_name].locked) {
-            tracking[tracking_name].locked = [];
-          }
-          tracking[tracking_name].locked.push(atomic_start_info.receive_height);
+          tracking[tracking_name].locked = true;
           continue;
         }
         //check if nft has been sold successfully, or not
@@ -517,7 +512,7 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
           continue;
         }
         //make sure is not locked
-        if (tracking[mint_block.hash].locked.includes(cid_json.receive_hash)) {
+        if (tracking[mint_block.hash].locked) {
           continue;
         }
         delete tracking[mint_block.hash];
