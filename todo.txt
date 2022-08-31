@@ -1,4 +1,5 @@
-Number of mints
+NFTees sending on the backend! Like POAPs basically
+Number of mint
 Mint # (premium)
 Recognize atomic swaps, but not facilitate (probably)
 Cache in DB! Or at least verified minters

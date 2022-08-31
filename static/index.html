@@ -6,8 +6,15 @@
     <link href="/index.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
-    <div id="top"></div>
+    <div id="top">
+      <div id="top-right">
+        <span class="supporter-badge" id="supporter-badge">Supporter</span>
+        <button id="connect-button" onclick="connect()">CONNECT</button>
+      </div>
+    </div>
     <center>
+      <span id="linked-info">Currently linked as <span id="linked-address"></span> (<a id="linked-link">View NFTs</a>)</span>
+      <br><br>
       <input id="address" placeholder="Your Banano Address"></input>
       <br>
       <button onclick="go()" id="view-nft-btn">View NFTs</button>
@@ -17,6 +24,7 @@
       </div>
     </center>
     <script>
+      let linked_address;
       let lang = navigator.language;
       if (lang.startsWith("es")) {
         document.getElementById("view-nft-btn").innerText = "Ver NFTs";
@@ -29,6 +37,20 @@
         }
         window.location = '/account/'+document.getElementById('address').value;
       }
+      if (window.banano) {
+        document.getElementById("top-right").style.display = "block";
+      }
+      function connect() {
+        window.banano.request_address();
+      }
+      window.addEventListener("message", function(e) {
+        if (e.data.type === "banano_link") {
+          linked_address = e.data.content.address;
+          document.getElementById("linked-link").href = "https://bannfts.prussiafan.club/account/"+linked_address;
+          document.getElementById("linked-address").innerText = linked_address.slice(0,9)+"..."+linked_address.slice(-7);
+          document.getElementById("linked-info").style.display = "block";
+        }
+      });
     </script>
   </body>
 </html>
