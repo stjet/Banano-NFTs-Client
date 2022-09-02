@@ -1,15 +1,22 @@
 const util = require('./nft_util.js');
+const captcha = require('./captcha.js');
 const express = require('express');
 const nunjucks = require('nunjucks');
 const bodyParser = require('body-parser');
 const giveaway = require('./storage/giveaway.js');
+const nftee = require('./storage/nftee.js');
 const aliases = require('./storage/aliases.js');
+const cors = require('cors');
 
 let outage = false;
 
 nunjucks.configure('templates', { autoescape: true });
 
 const app = express();
+
+//allow all sites
+//can change to `cors({ origin: ["https://hellomokuzai.github.io", "https://creeper.banano.cc"] })`
+app.use(cors());
 
 app.use(express.static('static'));
 
@@ -144,6 +151,50 @@ app.get('/api/v1/verified', function (req, res) {
 
 app.get('/api/v1/v0_to_v1_cid/:v0_cid', async function (req, res) {
   return res.send(await util.v0_to_v1(req.params.v0_cid));
+});
+
+app.get('/nftee/:id', async function (req, res) {
+  let info;
+  try {
+    info = await nftee.get_nftee_info(req.params.id);
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send('Error');
+  }
+  if (!info) {
+    //return error
+    return res.send(nunjucks.render('nftee.html', {error: true, lang: req.acceptsLanguages(['es']), sent: false}));
+  }
+  let challenge_url, challenge_code, challenge_nonce;
+  try {
+    [challenge_url, challenge_code, challenge_nonce] = await captcha.req();
+  } catch (e) {
+    return res.status(500).send('Captcha Loading Error');
+  }
+  return res.send(nunjucks.render('nftee.html', {
+    error: false, info: info, lang: req.acceptsLanguages(['es']), sent: false, challenge_url: challenge_url, challenge_code: challenge_code, challenge_nonce: challenge_nonce
+  }));
+});
+
+app.post('/nftee/:id', async function (req, res) {
+  try {
+    let success = await captcha.verify(req.body);
+    if (!success) {
+      return res.send(nunjucks.render('nftee.html', {error_msg: "Captcha failed"}));
+    }
+  } catch (e) {
+    return res.status(500).send('Captcha Verifying Error');
+  }
+  let info;
+  let tx;
+  try {
+    info = await nftee.get_nftee_info(req.params.id);
+    tx = await nftee.send_nftee(req.body.to_address, info.nft_rep);
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send('Error');
+  }
+  return res.send(nunjucks.render('nftee.html', {error: false, info: info, lang: req.acceptsLanguages(['es']), sent: true, sent_tx: tx, to_address: req.body.to_address}));
 });
 
 app.listen(443, async () => {

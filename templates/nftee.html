@@ -1,0 +1,77 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <link href="/index.css" rel="stylesheet" type="text/css" />
+    <title>NFTee Drop!!!</title>
+  </head>
+  <body>
+    {% if sent %}
+      {% if lang == "es" %}
+        <p>¡Enviado! Asegúrate de recibir la <a href="https://creeper.banano.cc/hash/{{ sent_tx }}">transacción</a> en tu billetera para que el NFT se muestre. Mira tus NFTs actuales <a href="/account/{{ to_address }}">aquí</a>.</p>
+      {% else %}
+        <p>Sent! Make sure to receive the <a href="https://creeper.banano.cc/hash/{{ sent_tx }}">block</a> for the NFT to show. See your current NFTs <a href="/account/{{ to_address }}">here</a>.</p>
+      {% endif %}
+    {% else %}
+      <style>
+        #challenge {
+          padding-top: 5px;
+          padding-bottom: 5px;
+          width: 200px;
+        }
+
+        #challenge-answer {
+          width: 100%;
+          margin: 0;
+          padding: 0;
+        }
+
+        #challenge-img {
+          width: 100%;
+        }
+      </style>
+      {% if error_msg %}
+        <p>Error: {{ error_msg }}</p>
+      {% elif error %}
+        {% if lang == "es" %}
+          <p>Parece que el nftee no existe o ha concluido.</p>
+        {% else %}
+          <p>Looks like this nftee doesn't exist, or has ended.</p>
+        {% endif %}
+      {% else %}
+        {% if lang == "es" %}
+          <p>Mira cómo luce el NFT <a href="https://bannfts.prussiafan.club/nft/{{ info.nft_rep }}">aquí</a>. ¡Gracias por participar en este evento!</p>
+          <form method="post" id="form">
+            <label for="to_address">Para la dirección:</label>
+            <input type="text" id="to_address" name="to_address"><br>
+            <div id="challenge">
+              <img src="{{ challenge_url }}" title="A text captcha" id="challenge-img"/>
+              <input type="text" name="answer" id="challenge-answer" placeholder="Captcha answer..."/>
+              <input type="hidden" name="code" value="{{ challenge_code }}"/>
+              <input type="hidden" name="nonce" value="{{ challenge_nonce }}"/>
+              <br>
+            </div>
+            <input type="submit" value="Submit">
+          </form>
+        {% else %}
+          <p>Check out what the NFT looks like <a href="https://bannfts.prussiafan.club/nft/{{ info.nft_rep }}">here</a>. Thank you for participating in this event!</p>
+          <form method="post" id="form">
+            <label for="to_address">To address:</label>
+            <input type="text" id="to_address" name="to_address"><br>
+            <div id="challenge">
+              <img src="{{ challenge_url }}" title="A text captcha" id="challenge-img"/>
+              <input type="text" name="answer" id="challenge-answer" placeholder="Captcha answer..."/>
+              <input type="hidden" name="code" value="{{ challenge_code }}"/>
+              <input type="hidden" name="nonce" value="{{ challenge_nonce }}"/>
+              <br>
+            </div>
+            <input type="submit" value="Submit">
+          </form>
+        {% endif %}
+      {% endif %}
+      <script>
+        document.getElementById("form").action = window.location.href;
+      </script>
+    {% endif %}
+  </body>
+</html>
