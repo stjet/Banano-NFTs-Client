@@ -92,8 +92,20 @@ app.get('/nft/:account', async function (req, res) {
   }
   let cid_json = info[0];
   let supply_info = info[1];
+  let v1_cid = false;
+  if (req.query.v1_cid == "1") {
+    try {
+      if (cid_json.animation_url) {
+        v1_cid = await util.v0_to_v1(cid_json.animation_url);
+      } else if (cid_json.image) {
+        v1_cid = await util.v0_to_v1(cid_json.image);
+      }
+    } catch (e) {
+      v1_cid = false;
+    }
+  }
   let verified = util.verified_minters.includes(cid_json.properties.issuer);
-  return res.send(nunjucks.render('nft.html', {cid_json: cid_json, supply_info: supply_info, verified: verified, lang: req.acceptsLanguages(['es'])}));
+  return res.send(nunjucks.render('nft.html', {cid_json: cid_json, supply_info: supply_info, verified: verified, lang: req.acceptsLanguages(['es']), v1_cid: v1_cid}));
 });
 
 app.get('/mint', function (req, res) {
@@ -150,7 +162,11 @@ app.get('/api/v1/verified', function (req, res) {
 });
 
 app.get('/api/v1/v0_to_v1_cid/:v0_cid', async function (req, res) {
-  return res.send(await util.v0_to_v1(req.params.v0_cid));
+  try {
+    return res.send(await util.v0_to_v1(req.params.v0_cid));
+  } catch (e) {
+    return res.send("Error");
+  }
 });
 
 app.get('/nftee/:id', async function (req, res) {

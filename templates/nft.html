@@ -7,12 +7,22 @@
   </head>
   <body>
     <h2>{{ cid_json.name }}</h2>
-    {% if cid_json.animation_url %}
-      <video controls autoplay>
-        <source src="https://gateway.pinata.cloud/ipfs/{{ cid_json.animation_url }}" type="video/mp4">
-      </video>
+    {% if v1_cid %}
+      {% if cid_json.animation_url %}
+        <video controls autoplay>
+          <source src="https://{{ v1_cid }}.ipfs.dweb.link" type="video/mp4">
+        </video>
+      {% else %}
+        <img src="https://{{ v1_cid }}.ipfs.dweb.link" class="nft-img"></img>
+      {% endif %}
     {% else %}
-      <img src="https://gateway.pinata.cloud/ipfs/{{ cid_json.image }}" class="nft-img"></img>
+      {% if cid_json.animation_url %}
+        <video controls autoplay>
+          <source src="https://gateway.pinata.cloud/ipfs/{{ cid_json.animation_url }}" type="video/mp4">
+        </video>
+      {% else %}
+        <img src="https://gateway.pinata.cloud/ipfs/{{ cid_json.image }}" class="nft-img"></img>
+      {% endif %}
     {% endif %}
     <p>{{ cid_json.description }}</p>
     {% if lang == "es" %}
