@@ -61,18 +61,18 @@ function account_to_cid(account) {
 async function get_cid_json(cid) {
   let resp;
   try {
-    resp = await axios.get("https://"+v0_to_v1(cid)+".ipfs.dweb.link", {
-      timeout: 5000
+    resp = await axios.get("https://cloudflare-ipfs.com/ipfs/"+cid, {
+      timeout: 4000
     });
   } catch (e) {
-    console.log('timeout for '+cid+' dweb')
+    console.log('timeout for '+cid+' cloudflare')
     try {
       //ipfs.eth.aragon.network
-      resp = await axios.get("https://cloudflare-ipfs.com/ipfs/"+cid, {
+      resp = await axios.get("https://"+v0_to_v1(cid)+".ipfs.dweb.link", {
         timeout: 4000
       });
     } catch (e) {
-      console.log('timeout for '+cid+' cloudflare')
+      console.log('timeout for '+cid+' dweb')
       return false;
     }
   }
