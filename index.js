@@ -96,9 +96,9 @@ app.get('/nft/:account', async function (req, res) {
   if (req.query.v1_cid == "1") {
     try {
       if (cid_json.animation_url) {
-        v1_cid = await util.v0_to_v1(cid_json.animation_url);
+        v1_cid = util.v0_to_v1(cid_json.animation_url);
       } else if (cid_json.image) {
-        v1_cid = await util.v0_to_v1(cid_json.image);
+        v1_cid = util.v0_to_v1(cid_json.image);
       }
     } catch (e) {
       v1_cid = false;
@@ -164,6 +164,14 @@ app.get('/api/v1/verified', function (req, res) {
 app.get('/api/v1/v0_to_v1_cid/:v0_cid', async function (req, res) {
   try {
     return res.send(await util.v0_to_v1(req.params.v0_cid));
+  } catch (e) {
+    return res.send("Error");
+  }
+});
+
+app.get('/api/v1/account_to_cid/:account', async function (req, res) {
+  try {
+    return res.send(await util.account_to_cid(req.params.account));
   } catch (e) {
     return res.send("Error");
   }

@@ -7,7 +7,7 @@ const CID = require('cids');
 
 bananojs.setBananodeApiUrl('https://kaliumapi.appditto.com/api');
 
-const base_url = "https://gateway.pinata.cloud/ipfs/";
+//const base_url = "https://gateway.pinata.cloud/ipfs/";
 
 let online_reps;
 
@@ -61,16 +61,18 @@ function account_to_cid(account) {
 async function get_cid_json(cid) {
   let resp;
   try {
-    resp = await axios.get(base_url+cid, {
+    resp = await axios.get("https://"+v0_to_v1(cid)+".ipfs.dweb.link", {
       timeout: 5000
     });
   } catch (e) {
+    console.log('timeout for '+cid+' dweb')
     try {
       //ipfs.eth.aragon.network
-      resp = await axios.get("https://ipfs.io/ipfs/"+v0_to_v1(cid), {
-        timeout: 2000
+      resp = await axios.get("https://cloudflare-ipfs.com/ipfs/"+cid, {
+        timeout: 4000
       });
     } catch (e) {
+      console.log('timeout for '+cid+' cloudflare')
       return false;
     }
   }

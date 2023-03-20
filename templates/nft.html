@@ -18,10 +18,10 @@
     {% else %}
       {% if cid_json.animation_url %}
         <video controls autoplay>
-          <source src="https://gateway.pinata.cloud/ipfs/{{ cid_json.animation_url }}" type="video/mp4">
+          <source src="https://gateway.ipfs.io/ipfs/{{ cid_json.animation_url }}" type="video/mp4">
         </video>
       {% else %}
-        <img src="https://gateway.pinata.cloud/ipfs/{{ cid_json.image }}" class="nft-img"></img>
+        <img src="https://gateway.ipfs.io/ipfs/{{ cid_json.image }}" class="nft-img"></img>
       {% endif %}
     {% endif %}
     <p>{{ cid_json.description }}</p>
