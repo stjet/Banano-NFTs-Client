@@ -299,15 +299,15 @@ async function get_nfts_for_account(account, options={detect_change_send: false,
       //include changes
       //detect_change_send is true, essentially
       if (options.supporting) {
-        account_history = await get_account_history(account, {count: 1000, offset: options.offset});
+        account_history = await get_account_history(account, {count: 1500, offset: options.offset});
       } else {
-        account_history = await get_account_history(account, {count: 500, offset: options.offset});
+        account_history = await get_account_history(account, {count: 1000, offset: options.offset});
       }
     } else {
       if (options.supporting) {
-        account_history = await get_account_history(account, {receive_only: true, send_only: true, count: 1000, offset: options.offset});
+        account_history = await get_account_history(account, {receive_only: true, send_only: true, count: 1500, offset: options.offset});
       } else {
-        account_history = await get_account_history(account, {receive_only: true, send_only: true, offset: options.offset, count: 500});
+        account_history = await get_account_history(account, {receive_only: true, send_only: true, offset: options.offset, count: 1000});
       }
     }
   } catch (e) {
