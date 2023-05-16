@@ -46,6 +46,8 @@
       <br>
       <label for="supply">Max Supply (0 for unlimited): </label><input type="text" id="supply"></input>
       <br>
+      <label for="do-first-mint">Automatic First Mint (see notes): </label><input type="checkbox" id="do-first-mint"></input>
+      <br>
       <button onclick="mint()">Mint</button>
     </div>
     <!--Give mint rep-->
@@ -61,6 +63,7 @@
       <li>Check the developer console</li>
       <li>Make sure 'pinfile' and 'pinjson' endpoint permissions were allowed in</li>
       <li>Check for pinata keys unlimited uses</li>
+      <li>The 'Automatic First Mint' option automatically mints the NFT right after the supply block that declares the NFT. You should check this if you are minting several NFTs on the same account consecutively, as the first block after the NFT supply block must be the first mint of the NFT.</li>
       <li>Make sure to contact me (prussia) after minting, I will need to whitelist the minting address</li>
     </ul>
     <script>
@@ -173,6 +176,9 @@
         //remove 1220
         let nft_rep_pub = decoded.slice(4);
         let nft_rep_addr = window.bananocoinBananojs.getAccount(nft_rep_pub, "ban_");
+        if (document.getElementById("do-first-mint").checked) {
+          await window.bananocoinBananojs.changeBananoRepresentativeForSeed(seed, 0, nft_rep_addr);
+        }
         document.getElementById('result-success').style.display = "block";
         document.getElementById('nft-rep').innerText = nft_rep_addr;
       }
